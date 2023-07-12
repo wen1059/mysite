@@ -1,0 +1,44 @@
+<!--lims查询-->
+{% extends 'se/appbase.html' %}
+
+{% block title %}lims查询{% endblock title %}
+{% block active_sl %}active{% endblock active_sl %}
+{% block form %}
+    <hr>
+    <form action="/se/sl/" method="post" onsubmit=dosubmit()>{% csrf_token %}
+        <label> 测试名称: <input type="text" name="testno"> </label>
+        <label> 项目编号/样品编号/批号: <input type="text" name="projectno"> </label>
+        <input type="submit" id="submit" style="height:30px;width: 200px">
+    </form>
+{% endblock form %}
+
+{% block instructions %}
+    <br>
+    <p style="color: #f513ea">食用方式：1、输入测试名称和项目编号/样品编号/批号；2、点击“提交”；3、下载模板。</p>
+    <hr>
+{% endblock instructions %}
+
+{% block tab %}
+    <h1 style="color: blue">结果下载</h1>
+    <table class="table table-hover">
+        <thead class="table-success">
+        <tr>
+            <th>input</th>
+            <th>download</th>
+            {#<th>用户</th>#}
+            <th>操作时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for data in datas %}
+            <tr>
+                <td>{{ data.filein }}</td>
+                <td><a href='/media/gentmp/{{ data.fileout }}'>{{ data.fileout_f }}</a></td>
+                {#<td>{{ data.ip }}</td>#}
+                <td>{{ data.timestamp }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock tab %}
+

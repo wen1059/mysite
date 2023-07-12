@@ -1,0 +1,199 @@
+<!--se下各app的模板，变量为form和table-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}  <!--加载static文件-->
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}"/>
+    <meta charset="UTF-8">
+    <!--为了让 Bootstrap 开发的网站对移动设备友好，确保适当的绘制和触屏缩放，需要在网页的 head 之中添加 viewport meta 标签-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 新 Bootstrap5 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
+    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <title>{% block title %}{% endblock title %}</title>
+
+    <script>
+        function dosubmit() {
+            //表单提交后禁用按钮
+            //const btnSubmit = document.getElementById("submit"); //获取表单提交按钮
+            //btnSubmit.disabled = true; //将表单提交按钮设置为不可用，可以避免用户再次点击提交按钮进行提交
+            //btnSubmit.style.color = "SlateGray"; //变成灰色
+
+            //表单提交后在模态框显示虚假进度条
+            $(document).ready(function () {
+                $("#progressModal").modal('show')
+            });
+            let i = 0;
+            let mDiv = setInterval(function () {
+                if (i >= 99) {
+                    clearInterval(mDiv);
+                    //i = 0
+                }
+                const myDiv = document.getElementById("myDiv");
+                myDiv.style.width = i + "%";
+                myDiv.innerText = i + "%";
+                i++;
+            }, 500);
+
+            //返回true让表单可以提交
+            return true;
+        }
+    </script>
+
+    <style>
+        .records {
+            border-collapse: collapse;
+        {#margin: 0 auto;#} text-align: center;
+        }
+
+        .records td, .records th {
+            border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;
+        }
+
+        .records th {
+            background-color: rgb(112, 173, 71);
+        {#width: 100px;#}
+        }
+
+        .records tr:nth-child(odd) {
+            background: #fff;
+        }
+
+        .records tr:nth-child(even) {
+            background: rgb(226, 239, 218);
+        }
+    </style>
+</head>
+
+<body>
+<div class="container mt-3">
+    <!-- Nav pills -->
+    <ul class="nav nav-pills justify-content-center" role="tablist">
+        <li class="nav-item"><a href="/se/" class="nav-link {% block active_idx %}{% endblock active_idx %}">神秘入口</a></li>
+        <li class="nav-item"><a href="/wp/" class="nav-link {% block active_wp %}{% endblock active_wp %}">绩效分值</a></li>
+        <li class="nav-item"><a href="/se/wpcal/" class="nav-link {% block active_wpcal %}{% endblock active_wpcal %}">绩效计算</a></li>
+        <li class="nav-item"><a href="/se/ptc/" class="nav-link {% block active_ptc %}{% endblock active_ptc %}">pdf转csv</a></li>
+        <li class="nav-item"><a href="/se/ptw/" class="nav-link {% block active_ptw %}{% endblock active_ptw %}">pdf转word</a></li>
+        <li class="nav-item"><a href="/se/ppr/" class="nav-link {% block active_ppr %}{% endblock active_ppr %}">pdf去加密</a></li>
+        <li class="nav-item"><a href="/se/opr/" class="nav-link {% block active_opr %}{% endblock active_opr %}">office去加密</a></li>
+        <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>
+    </ul>
+
+    {% block form %}
+        <hr>
+        {#    <form action="ptcrun/" method="post" onsubmit=dosubmit()>{% csrf_token %}#}
+        {#        <label> 待处理文件: <input type="text" value="\\10.1.78.254\环装-实验室\实验室共享\装机必备\se\pdftocsv\"#}
+        {#                                   name="indir" style="width: 500px"> </label>#}
+        {#        <input type="submit" id="submit" style="height:30px;width: 200px">#}
+        {#    </form>#}
+        <form class="mb-3" method="post" enctype="multipart/form-data"
+              {% block action %}action=""{% endblock action %} onsubmit=dosubmit()>
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" id="submit">
+        </form>
+    {% endblock form %}
+
+    {% block instructions %}
+        <p style="color: #f513ea">食用方式：1、点击“选择文件”（可选多个）；2、点击“提交”；3、下载。</p>
+{#        <p style="color: blue">提交后请等待页面刷新，请勿重复提交!</p>#}
+        <hr>
+    {% endblock instructions %}
+
+    {% block tab %}
+        <h1 style="color: blue">结果下载</h1>
+        <table class="table table-hover">
+            <thead class="table-success">
+            <tr>
+                <th>uploaded</th>
+                <th>download</th>
+                {#<th>用户</th>#}
+                <th>操作时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for data in datas %}
+                <tr>
+                    <td>{{ data.filein }}</td>
+                    <td><a href='/media/{{ data.fileout }}'>{{ data.fileout_f }}</a></td>
+                    {#<td>{{ data.ip }}</td>#}
+                    <td>{{ data.timestamp }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endblock tab %}
+
+    {% block msgalt %}
+        <!--利用django.contrib.messages配合模态框弹窗-->
+        {% if messages %}
+            {% for msg in messages %}
+                <!-- 模态框 -->
+                <div class="modal" id="myModal" data-bs-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <!-- 模态框头部 -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">已完成</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <!-- 模态框内容 -->
+                            <div class="modal-body">
+                                {{ msg.message|linebreaks }}
+                            </div>
+                            <!-- 模态框底部 -->
+                            {#<div class="modal-footer">#}
+                            {#<button type="button" class="btn btn-danger" data-bs-dismiss="modal">关闭</button>#}
+                            {#</div>#}
+                        </div>
+                    </div>
+                </div>
+                <!-- end 模态框 -->
+
+                <script>
+                    <!--重新加载 jquery 库时,请将你的JavaScript代码包裹在$(document).ready(function(){})里面-->
+                    $(document).ready(function () {
+                        $("#myModal").modal('show')
+                    });
+                </script>
+
+            {% endfor %}
+        {% endif %}
+    {% endblock msgalt %}
+
+    {% block progress %}
+        <!-- 进度条模态框 -->
+        <div class="modal" id="progressModal" data-bs-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- 模态框头部 -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">正在处理</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <!-- 模态框内容 -->
+                    <div class="modal-body">
+                        <!--放在模态框里面的进度条-->
+                        <div class="progress">
+                            <div id="myDiv" class="progress-bar progress-bar-striped active" role="progressbar"
+                                 aria-valuenow="45"
+                                 aria-valuemin="0" aria-valuemax="100" style="width: 0">
+                                <!-- <span class="sr-only">45% Complete</span> -->
+                                0%
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- end 模态框 -->
+    {% endblock progress %}
+    {% block others %}{% endblock others %}
+</div>
+</body>

@@ -1,0 +1,42 @@
+<!--绩效计算-->
+{% extends 'se/appbase.html' %}
+
+{% block title %}绩效计算{% endblock title %}
+{% block active_wpcal %}active{% endblock active_wpcal %}
+{% block form %}
+    <hr>
+    <form action="/se/wpcal/" method="post" onsubmit=dosubmit()>{% csrf_token %}
+        <label> 开始日期: <input type="date" name="start"> </label>
+        <label> --结束日期: <input type="date" name="end"> </label>
+        <input type="submit" id="submit" style="height:30px;width: 200px">
+    </form>
+{% endblock form %}
+
+{% block instructions %}
+    <p> 食用方式：选择开始日期和结束日期，然后点击提交 </p>
+    <p style="color: blue">提交后请等待页面刷新，请勿重复提交!</p>
+    <hr>
+{% endblock instructions %}
+
+{% block tab %}
+    <table class="records">
+        <tbody>
+        <tr>
+            <th>开始日期 / 结束日期</th>
+            <th>输出目录</th>
+            {#<th>用户</th>#}
+            <th>操作时间</th>
+        </tr>
+        {% for data in datas %}
+            <tr>
+                <td>{{ data.filein }}</td>
+                <td>
+                    <a href='/media/calresult/{{ data.fileout_f }}'>{{ data.fileout }}</a></td>
+                {#<td>{{ data.ip }}</td>#}
+                <td>{{ data.timestamp }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock tab %}
+
