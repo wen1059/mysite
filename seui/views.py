@@ -52,7 +52,7 @@ def index_(request):
     """
     主域名跳转到指定页面
     """
-    return HttpResponseRedirect('/wp/')
+    return HttpResponseRedirect('/se/sl')
 
 
 @gzip_page  # response采用gzip压缩后传到前端
