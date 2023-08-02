@@ -7,7 +7,7 @@ import xlwings
 from xlwings.main import Sheet, Book
 
 
-def fill(cols, rows):
+def fill(cols):
     """
 
     :param cols: 要填充的列,a列和b列就写'ab'
@@ -16,6 +16,7 @@ def fill(cols, rows):
     """
     file = xlwings.books.active
     sht0: Sheet = file.sheets[0]
+    rows = sht0.used_range.last_cell.row
     for col in cols:
         flag = None
         values = sht0.range(f'{col}1:{col}{rows}').value
@@ -27,4 +28,4 @@ def fill(cols, rows):
         sht0.range(f'{col}1').options(transpose=True).value = values
 
 
-fill('ab', 5911)
+fill('ab')
