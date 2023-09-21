@@ -3,6 +3,8 @@
 """
 查找lims数据库
 """
+from typing import Tuple, Any
+
 import pymysql
 import xlwings
 from xlwings.main import Book, Sheet
@@ -99,7 +101,7 @@ class Limsdb:
         return rst
 
 
-def searchlims(testno, byno: str):
+def searchlims(testno='', byno: str = '') -> tuple[tuple[Any, ...], ...]:
     """
     查询sql,
     :param testno: 测试编码
@@ -128,7 +130,7 @@ def gentmp(rst, filename):
     app = xlwings.App(visible=False, add_book=False)
     file: Book = app.books.add()
     sht: Sheet = file.sheets[0]
-    sht.range('a1').value = ['样品编号', '分析项名', '仪器分析项名', '结果']
+    sht.range('a1').value = ['样品编号', '分析项名', '仪器分析项名', '结果', '分组']
     sht.range('a2').value = rst
     #  设置格式
     sht.autofit()  # 自动列宽

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # date: 2023-6-16
 import pikepdf
+import sys
 
 
 def unlock(filein: str):
@@ -24,3 +25,8 @@ def unlock_cover(filein: str):
     if filein.lower().endswith('.pdf'):
         with pikepdf.open(filein, allow_overwriting_input=True) as pdf_:
             pdf_.save()
+
+
+if __name__ == '__main__':
+    for file in sys.argv[1:]:
+        unlock_cover(file)

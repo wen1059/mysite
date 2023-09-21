@@ -82,7 +82,7 @@ def writecsv(text, csvfile):
             writer.writerow(line.split())
 
 
-def runsingle(pdffile, rename=False):
+def transe(pdffile, rename=False):
     if pdffile.lower().endswith('.pdf'):
         text = readpdf(pdffile)
         writecsv(text, pdffile.replace(pdffile[-4:], '.csv'))
@@ -100,18 +100,19 @@ def run(rootpath, recursive=False, rename=False):
     :return:
     """
     if os.path.isfile(rootpath):
-        runsingle(rootpath, rename)
+        transe(rootpath, rename)
     elif os.path.isdir(rootpath):
         for root, _, files in os.walk(rootpath):
             for file in files:
                 pdffile = os.path.join(root, file)
-                runsingle(pdffile, rename)
+                transe(pdffile, rename)
             if not recursive:
                 break
 
 
 if __name__ == '__main__':
     # path = os.path.split(os.path.realpath(__file__))[0]
-    path = r"Z:\实验室共享\04 有机室\B44489-44508506-PAMS.pdf"
+    path = r"C:\Users\Administrator\Desktop\新建文件夹\新建文件夹\B77055506.pdf"
     run(path, recursive=False)
+    # print(readpdf(path))
     print('完成')

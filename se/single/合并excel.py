@@ -22,31 +22,24 @@
 # 它也适用于从一个工作簿到另一个工作簿。
 
 import os
-from glob import iglob
+import sys
+from glob import iglob,glob
 from tqdm import tqdm
 import xlwings
 from xlwings.main import Book, Sheet
 
 
-def merge(path, *partfiles):
+def merge(files, savepath):
     """
-    :param path: # excel所在文件夹的绝对路径
-    :param partfiles: # 只合并部分文件,文件名
+    :parameter files: 要合并的文件
+    :parameter savepath: 合并后保存到的位置
     :return:
     """
     app = xlwings.App(visible=False, add_book=False)
     f_merge: Book = app.books.add()
     sht0: Sheet = f_merge.sheets[0]
-    os.chdir(path)
-    if os.path.exists('合并.xlsx'):
-        os.remove('合并.xlsx')
-    # 如果指定文件，那么只合并这些文件，否则合并当前文件夹内所有文件
-    if partfiles:
-        files = [os.path.join(path, partfile) for partfile in partfiles]
-    else:
-        files = iglob(path + r'\\**\\*.xls*', recursive=True)
     for file in tqdm(files, desc='正在合并', colour='green'):
-        if file.startswith('~') or (not file.endswith(('.xlsx', '.xls', '.csv'))):
+        if ('~$' in file) or (not file.endswith(('.xlsx', '.xls', '.csv'))):
             continue
         xlsx: Book = app.books.open(file)
         for sht in xlsx.sheets:
@@ -54,11 +47,19 @@ def merge(path, *partfiles):
             sht.copy(before=sht0)
         xlsx.close()
     sht0.delete()
-    f_merge.save('合并.xlsx')
+    if os.path.exists('合并.xlsx'):
+        os.remove('合并.xlsx')
+    f_merge.save(os.path.join(savepath, '合并.xlsx'))
     f_merge.close()
     app.quit()
 
 
 if __name__ == '__main__':
-    path = os.path.split(os.path.realpath(__file__))[0]
-    merge(path)
+    if len(sys.argv) > 1:
+        files = sys.argv[1:]
+        savepath = os.path.split(sys.argv[1])[0]
+    else:
+        savepath = os.path.split(os.path.realpath(__file__))[0]
+        files = glob(os.path.join(savepath, r'*.*'))
+    merge(files, savepath)
+

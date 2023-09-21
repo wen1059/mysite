@@ -121,7 +121,7 @@ def ptc(request):
             # 有重复上传的通过order_by('-id')[0]取最近一次上传，django不支持负索引，通过.file取file字段
             uploadename = ModelWithFileField.objects.filter(fileorgname=orgname).order_by('-id')[0].file.name
             fullname = os.path.join(settings.MEDIA_ROOT, uploadename)  # orgname的绝对路径,用于se程序
-            pdf_to_csv.runsingle(fullname)
+            pdf_to_csv.transe(fullname)
             fileout = uploadename.replace(uploadename[-4:], '.csv')  # 子目录+csv文件名，用于media连接
             fileout_f = os.path.split(fileout)[-1]  # csv文件名，用于显示
             ip = get_ip(request)
