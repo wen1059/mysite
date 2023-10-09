@@ -23,7 +23,7 @@ class Mysqldb:
         self.con = pymysql.connect(host='localhost',
                                    port=3306,
                                    user='root',
-                                   passwd='123456',
+                                   passwd='WenLiang10072518',
                                    database='airport_noise'
                                    )
         self.curse = self.con.cursor()
@@ -120,8 +120,8 @@ def yieldsht(walkpath, app_24):
             #     sht = file24.sheets[sc]  # sht：其中一天的sheet
             yield file24.name, file24.sheets[0]
             file24.close()
-            shutil.copy(file24path, r"C:\Users\Administrator\Desktop\虹桥噪声桌面\计算备份\{}".format(
-                time.strftime('%H%M%S', time.localtime(time.time())) + '_' + filexlsx))  # 新增备份功能
+            # shutil.copy(file24path, r"C:\Users\Administrator\Desktop\虹桥噪声桌面\计算备份\{}".format(
+            #     time.strftime('%H%M%S', time.localtime(time.time())) + '_' + filexlsx))  # 新增备份功能
             os.remove(file24path)
     # app_24.kill()
 
@@ -530,7 +530,7 @@ def main():
     app_24 = xlwings.App(visible=False, add_book=False)
     while True:
         try:
-            run_oneday_week(r'C:\Users\Administrator\Desktop\虹桥噪声桌面\周平均自动计算_虹桥_精密', 'day虹桥_精密', 'week虹桥', app_24)
+            run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场', 'day虹桥_精密', 'week虹桥', app_24)
         except Exception as e:
             print(e)
         time.sleep(3)

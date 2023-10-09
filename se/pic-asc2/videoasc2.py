@@ -8,7 +8,7 @@ from PIL import Image
 class Settings:
     def __init__(self):
         self.cols = 190  # 图片分割的列数
-        self.scale = 3  # 字体高宽比,django{{ content|linebreaks }}渲染到html<code>标签字体设置3
+        self.scale = 3  # 字体高宽比,django{{ content|linebreaks }}渲染到html<code>标签字体设置3(改为<pre>标签)
         self.gscale = [r'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzxvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`". ',
                        r'$%#*=+-:. ',
                        r'#. ']
@@ -43,9 +43,9 @@ def convert_frame_to_asc(frame):
         for j in range(settings.cols):
             img = image.crop((int(j * w), int(i * h), int((j + 1) * w), int((i + 1) * h)))
             avgl = getaveL(img)
-            s1 = settings.gscale[0][round(avgl / 255 * (len(settings.gscale[0]) - 1))]
-            s2 = settings.gscale[1][round(avgl / 255 * (len(settings.gscale[1]) - 1))]
-            asc += s2
+            s0 = settings.gscale[0][round(avgl / 255 * (len(settings.gscale[0]) - 1))]
+            s1 = settings.gscale[1][round(avgl / 255 * (len(settings.gscale[1]) - 1))]
+            asc += s1
         asc += '\n'
     asc += '\t'  # 把所有帧存在一起，\t作为帧之间的识别符
     return asc
