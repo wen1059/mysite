@@ -11,6 +11,7 @@ from datetime import datetime
 import sys
 import shutil
 import json
+import random
 
 
 # sys.path.extend([r'C:\Users\Administrator\PycharmProjects\se'])
@@ -23,16 +24,16 @@ def upload_file_by_modelform(request, appname):
     appname: 通过调用的app指定appname，写入字段，upload_to函数会读取让文件保存在相应的子目录
     """
     if request.method == 'POST':
-        form = ModelFormWithFileField(request.POST, request.FILES)
-        if form.is_valid():
-            for f in (files := request.FILES.getlist('file')):
-                # request.FILES: <MultiValueDict: {'file': [<InMemoryUploadedFile: HJ 1048公式.png (image/png)>,... ]
-                instance = ModelWithFileField(appname=appname,  # request.POST['title'],
-                                              file=f, fileorgname=f.name)
-                instance.save()
-                # dosomething using f.name
-                # os.system(f'start {os.path.join(settings.MEDIA_ROOT, f.name)}')
-            return [file.name for file in files]  # 上传的原文件名列表
+        # form = ModelFormWithFileField(request.POST, request.FILES)  # 如果是上传单个文件，加上这行，然后直接form.save()。
+        # if form.is_valid():
+        for f in (files := request.FILES.getlist('file')):
+            # request.FILES: <MultiValueDict: {'file': [<InMemoryUploadedFile: HJ 1048公式.png (image/png)>,... ]
+            instance = ModelWithFileField(appname=appname,  # request.POST['title'],
+                                          file=f, fileorgname=f.name)
+            instance.save()
+            # dosomething using f.name
+            # os.system(f'start {os.path.join(settings.MEDIA_ROOT, f.name)}')
+        return [file.name for file in files]  # 上传的原文件名列表
 
 
 def get_ip(request):
@@ -63,7 +64,10 @@ def index(request):
     """
     if request.method == 'POST':
         if request.POST.get('frameindex') == 'ftx':
-            with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', 'test2-2.txt')) as f:
+            randomlist = ['badapple',
+                          # '鸡你太美',
+                          ]
+            with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
                 frametxts = f.read().split('\t')
             # 保存txt到数据库，保存完后注释掉，临时方案，后面重构。太卡放弃。
             # for frame, txt in enumerate(frametxts):

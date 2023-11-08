@@ -86,7 +86,7 @@ def transe(pdffile, rename=False):
     if pdffile.lower().endswith('.pdf'):
         text = readpdf(pdffile)
         writecsv(text, pdffile.replace(pdffile[-4:], '.csv'))
-        print(pdffile)
+        # print(pdffile)
         if rename:
             os.rename(pdffile, pdffile + '.bak')
 

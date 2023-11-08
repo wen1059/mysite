@@ -25,8 +25,8 @@ try:
         px.range('a1').value = px1.range('a1:h150').value
         fpx1 = px1.range('f1:f150').options(transpose=True).value
         fpx2 = px2.range('f1:f150').options(transpose=True).value
-        px.range('f1:f150').options(transpose=True).value = [(i + j) / 2 if isinstance(i, float) else i for i, j in
-                                                             zip(fpx1, fpx2)]
+        px.range('f1:f150').options(transpose=True).value = [
+            (i + j) / 2 if (isinstance(i, float) and isinstance(j, float)) else i for i, j in zip(fpx1, fpx2)]
 except:
     traceback.print_exc()
     input()

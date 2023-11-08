@@ -7,7 +7,7 @@ from PIL import Image
 
 class Settings:
     def __init__(self):
-        self.cols = 190  # 图片分割的列数
+        self.cols = 253  # 图片分割的列数, 1920x1080设置成253列x47行
         self.scale = 3  # 字体高宽比,django{{ content|linebreaks }}渲染到html<code>标签字体设置3(改为<pre>标签)
         self.gscale = [r'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzxvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`". ',
                        r'$%#*=+-:. ',
@@ -81,5 +81,5 @@ def print_ascs(txt):
 
 
 if __name__ == '__main__':
-    # convert_video_to_ascs('Alstroemeria.Records.-.[Bad.Apple!!.feat..nomico].(PV).mkv')
-    print_ascs(r"C:\Users\Administrator\PycharmProjects\mysite\static\indextext\test2-2.txt")
+    convert_video_to_ascs(r"C:\Users\Administrator\Downloads\jntm.mp4")
+    # print_ascs(r"C:\Users\Administrator\PycharmProjects\mysite\static\indextext\test2-2.txt")

@@ -156,7 +156,8 @@ def count_hb(sht):
             continue
         count_inner(hb_all)  # 统计所有,<20db和温湿度剔除项都统计在内
         # ---------4.17更新，统计lamax>20的，即在[lamaxp_all_day]中的航班的架次
-        bg = float(sht.range('n4').value)
+        v = sht.range('n4').value
+        bg = float(v) if v else 0
         maxla = sht.range('h{}'.format(i)).value
         if maxla is None:  # none表示背景干扰，赋值100以满足maxla - bg > 20，仅表示参与统计，此函数不影响数值计算
             maxla = 100
@@ -178,13 +179,14 @@ def gen_list(sht):
     """
     bg, eli = None, None  # eli是剔除项，Ture的时候是剔除
     # mdd = re.compile(r'.+-(.+)')  # 航路取目的地值，按需修改
-    for i in range(3, 2080): # 一天的行数
-    # for i in range(3, 14560):  # 7天的行数
+    for i in range(3, 2080):  # 一天的行数
+        # for i in range(3, 14560):  # 7天的行数
         jx = sht.range('j{}'.format(i)).value
         if jx is None:  # 以机型为识别，跳过没有数值的行。
             continue
         if jx == '机型':  # 更新背景值，背景值在k列“机型”字段的上两行
-            bg = float(sht.range('n4').value)  # sht.range('k{}'.format(i - 2)).value # 4.17更新，背景只取k4格
+            v = sht.range('n4').value
+            bg = float(v) if v else 0
             eli = sht.range('p{}'.format(i - 2)).value
             continue
         if str(jx).isdigit():
@@ -415,10 +417,11 @@ def cal_oneday_week(walkpath, app_24):
     dianwei, date, fx_name = '', '', ''
     # 这条线内的是单日计算---------------
     for file24name, sht in yieldsht(walkpath, app_24):
-        print(file24name)
+        print(time.ctime(), file24name)
         try:
             dianwei, date, fx_name = dw_date(file24name)
-            bg = float(sht.range('n4').value)
+            v = sht.range('n4').value
+            bg = float(v) if v else 0
             dic_ = gendic(sht)
             hb_ = count_hb(sht)
             # ---以下是>20db的日计算
@@ -517,8 +520,9 @@ def run_oneday_week(walkpath, tab_day, tab_week, app_24):
     # db.cleartab('day')
     # db.cleartab('week')
     for weekwalkpath, _, _ in os.walk(walkpath):
-        if weekwalkpath == walkpath:
-            continue
+        # 原本此处为了计算周平均，现在不需要，这样直接放入目录就能计算，否则要放入子目录
+        # if weekwalkpath == walkpath:
+        #     continue
         for sumres in cal_oneday_week(weekwalkpath, app_24):
             if sumres[1] == '周平均':
                 # db.ins_to_tab(tab_week, sumres)  # 写入周结果
@@ -530,7 +534,8 @@ def main():
     app_24 = xlwings.App(visible=False, add_book=False)
     while True:
         try:
-            run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场', 'day虹桥_精密', 'week虹桥', app_24)
+            run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__', 'day_精密_2023',
+                            'week虹桥', app_24)
         except Exception as e:
             print(e)
         time.sleep(3)

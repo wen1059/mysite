@@ -25,13 +25,13 @@ class Records(models.Model):
         ordering = ('-timestamp',)
 
 
-def uploade_to(instance, file):
+def uploade_to(instance, filename):
     """
     自定义上传文件位置和文件名
     instance: ModelWithFileField实例
-    file: 上传的文件名
+    filename: 上传的文件名
     """
-    return os.path.join(instance.appname, file)
+    return os.path.join(instance.appname, filename)
 
 
 class ModelWithFileField(models.Model):
@@ -48,6 +48,7 @@ class ModelWithFileField(models.Model):
 class ModelFormWithFileField(forms.ModelForm):
     """
     上传文件的模型表单
+    非必要，可以在前端直接用html写表单
     """
 
     class Meta:

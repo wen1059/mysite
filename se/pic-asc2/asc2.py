@@ -1,3 +1,6 @@
+"""
+不用，可以用video版本代替
+"""
 from PIL import Image
 import numpy as np
 
