@@ -15,25 +15,35 @@ import random
 
 
 # sys.path.extend([r'C:\Users\Administrator\PycharmProjects\se'])
-
-
-def upload_file_by_modelform(request, appname):
+def index_main(request):
     """
-    上传文件提交按钮
-    通过模型表单来上传文件
-    appname: 通过调用的app指定appname，写入字段，upload_to函数会读取让文件保存在相应的子目录
+    主域名跳转到指定页面
+    """
+    return HttpResponseRedirect('/se/sl')
+
+
+@gzip_page  # response采用gzip压缩后传到前端
+def index_se(request):
+    """
+    se主页,播放字符画视频，
+    1、先视频转字符画保存在一个txt，2、读取txt返回json（value为数组）到前端，3、前端js依次读取数组显示。
     """
     if request.method == 'POST':
-        # form = ModelFormWithFileField(request.POST, request.FILES)  # 如果是上传单个文件，加上这行，然后直接form.save()。
-        # if form.is_valid():
-        for f in (files := request.FILES.getlist('file')):
-            # request.FILES: <MultiValueDict: {'file': [<InMemoryUploadedFile: HJ 1048公式.png (image/png)>,... ]
-            instance = ModelWithFileField(appname=appname,  # request.POST['title'],
-                                          file=f, fileorgname=f.name)
-            instance.save()
-            # dosomething using f.name
-            # os.system(f'start {os.path.join(settings.MEDIA_ROOT, f.name)}')
-        return [file.name for file in files]  # 上传的原文件名列表
+        if request.POST.get('frameindex') == 'ftx':
+            randomlist = ['badapple',
+                          '鸡你太美',
+                          ]
+            with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
+                frametxts = f.read().split('\t')
+            # 保存txt到数据库，保存完后注释掉，临时方案，后面重构。太卡放弃。
+            # for frame, txt in enumerate(frametxts):
+            #     Indextxt(frame=frame, txt=txt).save()
+            # idx = int(idx)  # post过来是str
+            # txt = Indextxt.objects.get(frame=idx).txt  #  数据库方案，放弃
+            # txt = frametxts[idx]
+            txt = {'txt': frametxts[40:]}  # 跳过前40帧
+            return JsonResponse(txt)  # 改为全部帧传到前端js控制播放
+    return render(request, 'se/index.html', )
 
 
 def get_ip(request):
@@ -47,37 +57,6 @@ def get_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
     return ip
-
-
-def index_(request):
-    """
-    主域名跳转到指定页面
-    """
-    return HttpResponseRedirect('/se/sl')
-
-
-@gzip_page  # response采用gzip压缩后传到前端
-def index(request):
-    """
-    se主页,播放字符画视频，
-    1、先视频转字符画保存在一个txt，2、读取txt返回json（value为数组）到前端，3、前端js依次读取数组显示。
-    """
-    if request.method == 'POST':
-        if request.POST.get('frameindex') == 'ftx':
-            randomlist = ['badapple',
-                          # '鸡你太美',
-                          ]
-            with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
-                frametxts = f.read().split('\t')
-            # 保存txt到数据库，保存完后注释掉，临时方案，后面重构。太卡放弃。
-            # for frame, txt in enumerate(frametxts):
-            #     Indextxt(frame=frame, txt=txt).save()
-            # idx = int(idx)  # post过来是str
-            # txt = Indextxt.objects.get(frame=idx).txt  #  数据库方案，放弃
-            # txt = frametxts[idx]
-            txt = {'txt': frametxts[40:]}  # 跳过前40帧
-            return JsonResponse(txt)  # 改为全部帧传到前端js控制播放
-    return render(request, 'se/index.html', )
 
 
 def wpcal(request):
@@ -102,6 +81,25 @@ def wpcal(request):
                                fileout_f=fileout_f, ip=ip, appname='绩效分值计算')
         messages.info(request, siotext)
         return HttpResponseRedirect('/se/wpcal/')
+
+
+def upload_file_by_modelform(request, appname):
+    """
+    上传文件提交按钮
+    通过模型表单来上传文件
+    appname: 通过调用的app指定appname，写入字段，upload_to函数会读取让文件保存在相应的子目录
+    """
+    if request.method == 'POST':
+        # form = ModelFormWithFileField(request.POST, request.FILES)  # 如果是上传单个文件，加上这行，然后直接form.save()。
+        # if form.is_valid():
+        for f in (files := request.FILES.getlist('file')):
+            # request.FILES: <MultiValueDict: {'file': [<InMemoryUploadedFile: HJ 1048公式.png (image/png)>,... ]
+            instance = ModelWithFileField(appname=appname,  # request.POST['title'],
+                                          file=f, fileorgname=f.name)
+            instance.save()
+            # dosomething using f.name
+            # os.system(f'start {os.path.join(settings.MEDIA_ROOT, f.name)}')
+        return [file.name for file in files]  # 上传的原文件名列表
 
 
 def ptc(request):

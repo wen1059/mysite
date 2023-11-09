@@ -21,7 +21,7 @@ from django.views.static import serve
 
 urlpatterns = [
     re_path('media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}, name='media'),
-    path('', views.index_),
+    path('', views.index_main),
     path('admin/', admin.site.urls),
     # path('blog/', include('blog.urls')),
     # path('llogs/', include('learning_logs.urls', namespace='learning_logs')),

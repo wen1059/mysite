@@ -51,6 +51,7 @@ def agilent_gc(func):
     return inner
 
 
+# @wrap_try_except
 @shimadzu_gc
 @agilent_gc
 def readpdf(pdffile: str):

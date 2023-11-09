@@ -31,7 +31,7 @@ def unpack(archive):
     """
     将xlsx解压到同级目录同名文件夹下
     :param archive:压缩包绝对路径
-    :return:
+    :return:文件所在目录下的同名文件夹
     """
     shutil.unpack_archive(archive, unpackdir := archive.replace('.docx', ''), 'zip')
     return unpackdir
@@ -65,7 +65,7 @@ def repack(file, unpackdir):
     重新打包成xlsx
     :param file: 原xlsx路径
     :param unpackdir:之前解压到的文件夹路径
-    :return:
+    :return:/**/*.xlsx.zip
     """
     shutil.make_archive(base_name=file, format='zip', root_dir=unpackdir)
 
