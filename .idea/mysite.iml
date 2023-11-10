@@ -20,7 +20,7 @@
       <excludeFolder url="file://$MODULE_DIR$/learning_logs" />
       <excludeFolder url="file://$MODULE_DIR$/se/single_useless" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.12" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="bootstrap" level="application" />
     <orderEntry type="library" name="bootstrap.bundle" level="application" />

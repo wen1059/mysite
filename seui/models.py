@@ -45,6 +45,24 @@ class ModelWithFileField(models.Model):
 
 
 #  以下是form类
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
+
 class ModelFormWithFileField(forms.ModelForm):
     """
     上传文件的模型表单
@@ -56,7 +74,9 @@ class ModelFormWithFileField(forms.ModelForm):
         fields = ['file']
         # fields = '__all__'
         # exclude = ['fileorgname']
-        # 在上面模型的基础上，创建的forms表单添加HTML属性multiple,用于上传多个文件
-        widgets = {
-            'file': forms.ClearableFileInput(attrs={'multiple': True})
-        }
+        # 在上面模型的基础上，创建的forms表单添加HTML属性multiple,用于上传多个文件,新版本已废弃.
+        # widgets = {
+        #     'file': forms.ClearableFileInput(attrs={'multiple': True})
+        # }
+    # 新版本使用以下类实例实现多文件上传,
+    file = MultipleFileField()
