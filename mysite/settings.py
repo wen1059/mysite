@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     # 用户app
     # 'blog',
     # 'learning_logs',
-    'work_performance',
+    # 'work_performance',
     'seui'
 
 ]

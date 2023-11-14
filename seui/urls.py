@@ -6,6 +6,7 @@ from seui.views import *
 app_name = 'seui'
 urlpatterns = [
     path('', index_se, name='index_se'),
+    path('wpscore/', wpscore, name='wpscore'),  # 绩效分值
     path('wpcal/', wpcal, name='wpcal'),  # 绩效计算
     path('ptc/', ptc, name='ptc'),  # pdf转csv
     path('ptw/', ptw, name='ptw'),  # pdf转word

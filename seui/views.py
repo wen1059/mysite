@@ -15,6 +15,38 @@ import random
 
 
 # sys.path.extend([r'C:\Users\Administrator\PycharmProjects\se'])
+def get_ip(request):
+    """
+    获取客户端ip
+    X-Forwarded-For:简称XFF头，它代表客户端，也就是HTTP的请求端真实的IP，只有在通过了HTTP 代理或者负载均衡服务器时才会添加该项。
+    """
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]  # 所以这里是真实的ip
+    else:
+        ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
+    return ip
+
+
+def upload_file_by_modelform(request, appname):
+    """
+    上传文件提交按钮
+    通过模型表单来上传文件
+    appname: 通过调用的app指定appname，写入字段，upload_to函数会读取让文件保存在相应的子目录
+    """
+    if request.method == 'POST':
+        # form = ModelFormWithFileField(request.POST, request.FILES)  # 如果是上传单个文件，加上这行，然后直接form.save()。
+        # if form.is_valid():
+        for f in (files := request.FILES.getlist('file')):
+            # request.FILES: <MultiValueDict: {'file': [<InMemoryUploadedFile: HJ 1048公式.png (image/png)>,... ]
+            instance = ModelWithFileField(appname=appname,  # request.POST['title'],
+                                          file=f, fileorgname=f.name)
+            instance.save()
+            # dosomething using f.name
+            # os.system(f'start {os.path.join(settings.MEDIA_ROOT, f.name)}')
+        return [file.name for file in files]  # 上传的原文件名列表
+
+
 def index_main(request):
     """
     主域名跳转到指定页面
@@ -46,17 +78,22 @@ def index_se(request):
     return render(request, 'se/index.html', )
 
 
-def get_ip(request):
+def wpscore(request):
     """
-    获取客户端ip
-    X-Forwarded-For:简称XFF头，它代表客户端，也就是HTTP的请求端真实的IP，只有在通过了HTTP 代理或者负载均衡服务器时才会添加该项。
+    绩效分值页面
+    :param request:
+    :return:
     """
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]  # 所以这里是真实的ip
-    else:
-        ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
-    return ip
+    if request.method == 'GET':
+        form = ScoresForm()
+        data = Scores.objects.order_by('-测试代码')
+        content = {'scores': data, 'form': form}
+        return render(request, 'se/wp.html', content)
+    elif request.method == 'POST':
+        form = ScoresForm(request.POST)
+        if form.is_valid():
+            form.save()
+    return HttpResponseRedirect('/se/wpscore/')
 
 
 def wpcal(request):
@@ -81,25 +118,6 @@ def wpcal(request):
                                fileout_f=fileout_f, ip=ip, appname='绩效分值计算')
         messages.info(request, siotext)
         return HttpResponseRedirect('/se/wpcal/')
-
-
-def upload_file_by_modelform(request, appname):
-    """
-    上传文件提交按钮
-    通过模型表单来上传文件
-    appname: 通过调用的app指定appname，写入字段，upload_to函数会读取让文件保存在相应的子目录
-    """
-    if request.method == 'POST':
-        # form = ModelFormWithFileField(request.POST, request.FILES)  # 如果是上传单个文件，加上这行，然后直接form.save()。
-        # if form.is_valid():
-        for f in (files := request.FILES.getlist('file')):
-            # request.FILES: <MultiValueDict: {'file': [<InMemoryUploadedFile: HJ 1048公式.png (image/png)>,... ]
-            instance = ModelWithFileField(appname=appname,  # request.POST['title'],
-                                          file=f, fileorgname=f.name)
-            instance.save()
-            # dosomething using f.name
-            # os.system(f'start {os.path.join(settings.MEDIA_ROOT, f.name)}')
-        return [file.name for file in files]  # 上传的原文件名列表
 
 
 def ptc(request):
@@ -233,7 +251,7 @@ def sl(request):
     :return:
     """
     if request.method == 'GET':
-        datas = Records.objects.filter(appname='lims查询').order_by('-timestamp')
+        datas = Records.objects.filter(appname='lims查询').order_by('-timestamp')[:30]
         content = {'datas': datas}
         return render(request, 'se/sl.html', content)
     elif request.method == 'POST':

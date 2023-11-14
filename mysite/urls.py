@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('blog/', include('blog.urls')),
     # path('llogs/', include('learning_logs.urls', namespace='learning_logs')),
-    path('wp/', include('work_performance.urls', namespace='work_performance')),
+    # path('wp/', include('work_performance.urls', namespace='work_performance')),
     path('se/', include('seui.urls', namespace='seui')),
 
 ]

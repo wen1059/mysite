@@ -11,8 +11,26 @@ from django import forms
 #     frame = models.IntegerField()
 #     txt = models.TextField(null=True)
 
+class Scores(models.Model):
+    """
+    绩效分值
+    """
+    id = models.IntegerField(primary_key=True, name='测试代码', db_column='id')
+    item = models.CharField(max_length=255, name='测试名称', db_column='item')
+    score = models.FloatField(blank=True, null=True, name='分值', db_column='score')
+    multi = models.IntegerField(blank=True, null=True)
+    class0 = models.CharField(max_length=255, blank=True, null=True, name='类别', db_column='class0')
+    department = models.CharField(max_length=255, blank=True, null=True, name='科室', db_column='department')
+
+    class Meta:
+        managed = False
+        db_table = 'scores'
+
 
 class Records(models.Model):
+    """
+    操作记录
+    """
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(null=True)
     filein = models.CharField(max_length=255, null=True)
@@ -45,6 +63,18 @@ class ModelWithFileField(models.Model):
 
 
 #  以下是form类
+
+class ScoresForm(forms.ModelForm):
+    """
+    分值表单
+    """
+    class Meta:
+        model = Scores
+        # exclude = ('multi', 'class0', 'department')
+        exclude = ('multi',)
+
+
+# <--以下为上传文件多选相关-->
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
@@ -80,3 +110,4 @@ class ModelFormWithFileField(forms.ModelForm):
         # }
     # 新版本使用以下类实例实现多文件上传,
     file = MultipleFileField()
+# </--以上为上传文件多选相关-->

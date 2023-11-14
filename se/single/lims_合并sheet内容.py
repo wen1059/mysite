@@ -6,12 +6,11 @@
 import xlwings
 from xlwings.main import Book, Sheet
 
-
 file: Book = xlwings.books.active
 s: Sheet
 val = []
 for i in range(file.sheets.count):
-    sht:Sheet = file.sheets[i]
+    sht: Sheet = file.sheets[i]
     lc = sht.used_range.last_cell
     row = lc.row
     v = sht.range(f'a1:d{row}').value
