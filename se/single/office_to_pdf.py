@@ -52,6 +52,6 @@ def findfiles(path):
 
 
 if __name__ == '__main__':
-    ofs = findfiles(r'C:\Users\Administrator\Desktop\新建文件夹 (3)')
+    ofs = findfiles(r"C:\Users\Administrator\Desktop\学校相关\二年级\2A期末练习")
     words2pdf(ofs['words'])
     excels2pdf(ofs['excels'])

@@ -9,7 +9,7 @@ for i in range(6):
         if not data:
             continue
         regx = re.compile(r'METAR ZS.. \d{6}Z (...)(..).*MPS')
-        # print(regx.findall(data))
+        # print(regx.findall(transdata))
 
         fengxiang = regx.findall(data)[0][0]
         fx_result = ''

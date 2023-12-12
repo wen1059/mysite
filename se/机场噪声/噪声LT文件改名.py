@@ -4,31 +4,31 @@ import time
 import re
 
 
-def getfiletime(pathfile):
-    '''
-    返回文件时间：#YYDDHH
-    :param pathfile: awa绝对路径
-    :return:
-    '''
-    ft = os.path.getmtime(pathfile)  # mtime修改时间，ctime创建时间
-    ft = time.ctime(ft)  # 格式化时间
-    # print(ft)
-    yue = ft[-20:-17]  # 如Oct
-    timename = ft[-20:-11].replace(' ', '')
-    tndict = {'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11'}
-    timename = '#' + timename.replace(yue, tndict[yue])  # Oct替换成10
-    if len(timename) == 6:
-        timename = timename.replace('#{}'.format(tndict[yue]), '#{}0'.format(tndict[yue]))  # 101改1001
-    # print(timename)
-    return timename
+# def getfiletime(pathfile):
+#     '''
+#     返回文件时间：#YYDDHH
+#     :param pathfile: awa绝对路径
+#     :return:
+#     '''
+#     ft = os.path.getmtime(pathfile)  # mtime修改时间，ctime创建时间
+#     ft = time.ctime(ft)  # 格式化时间
+#     # print(ft)
+#     yue = ft[-20:-17]  # 如Oct
+#     timename = ft[-20:-11].replace(' ', '')
+#     tndict = {'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11'}
+#     timename = '#' + timename.replace(yue, tndict[yue])  # Oct替换成10
+#     if len(timename) == 6:
+#         timename = timename.replace('#{}'.format(tndict[yue]), '#{}0'.format(tndict[yue]))  # 101改1001
+#     # print(timename)
+#     return timename
 
 
 def getfiletime2(pathfile):
-    '''
+    """
     更新方法
     :param pathfile:
     :return:
-    '''
+    """
     ft0 = os.path.getmtime(pathfile)
     ft = time.localtime(ft0)
     gshtime = time.strftime('%m%d%H', ft)
@@ -37,11 +37,11 @@ def getfiletime2(pathfile):
 
 
 def getfoldername(pathfile):
-    '''
+    """
     返回点位号:__,根据文件夹做适当修改
     :param pathfile: awa绝对路径
     :return:
-    '''
+    """
     regex = re.compile(r'\\.+\\(.+)\\.+\\.+AWA')  # 根据目录层次适当修改
     loca = regex.findall(pathfile)
     # print(loca)
@@ -94,6 +94,7 @@ def rename_nobj(walkpath):
     subprocess.run("pause")
 
 
-rename_nobj(
-    os.path.split(os.path.realpath(__file__))[0]
-)
+if __name__ == '__main__':
+    rename_nobj(
+        os.path.split(os.path.realpath(__file__))[0]
+    )

@@ -55,9 +55,9 @@ def index_main(request):
 
 
 @gzip_page  # response采用gzip压缩后传到前端
-def index_se(request):
+def badapple(request):
     """
-    se主页,播放字符画视频，
+    播放字符画视频，
     1、先视频转字符画保存在一个txt，2、读取txt返回json（value为数组）到前端，3、前端js依次读取数组显示。
     """
     if request.method == 'POST':
@@ -75,7 +75,7 @@ def index_se(request):
             # txt = frametxts[idx]
             txt = {'txt': frametxts[40:]}  # 跳过前40帧
             return JsonResponse(txt)  # 改为全部帧传到前端js控制播放
-    return render(request, 'se/index.html', )
+    return render(request, 'se/badapple.html', )
 
 
 def wpscore(request):
@@ -88,7 +88,7 @@ def wpscore(request):
         form = ScoresForm()
         data = Scores.objects.order_by('-测试代码')
         content = {'scores': data, 'form': form}
-        return render(request, 'se/wp.html', content)
+        return render(request, 'se/wpscore.html', content)
     elif request.method == 'POST':
         form = ScoresForm(request.POST)
         if form.is_valid():

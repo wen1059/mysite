@@ -103,27 +103,30 @@ class Mysqldb:
         self.con.commit()
 
 
-def yieldsht(walkpath, app_24):
+def yieldsht(walkpath):
     """
     生成每个要处理的表
     :return:
     """
-    # app_24 = xlwings.App(visible=False, add_book=False)  # 待计算文件
+
     for root, _, files in os.walk(walkpath):
-        for filexlsx in files:
-            if filexlsx[-5:-1] != '.xls' or '~$' in filexlsx:
-                continue
-            file24path = os.path.join(root, filexlsx)
-            file24 = app_24.books.open(file24path)  # 24小时文件
-            # shtcount = file24.sheets.count  # sheet数量
-            # for sc in range(shtcount):
-            #     sht = file24.sheets[sc]  # sht：其中一天的sheet
-            yield file24.name, file24.sheets[0]
-            file24.close()
-            # shutil.copy(file24path, r"C:\Users\Administrator\Desktop\虹桥噪声桌面\计算备份\{}".format(
-            #     time.strftime('%H%M%S', time.localtime(time.time())) + '_' + filexlsx))  # 新增备份功能
-            os.remove(file24path)
-    # app_24.kill()
+        if files:  # 为了自动计算时不让excel在后台频繁打开关闭，增加了if条件。
+            app_24 = xlwings.App(visible=False, add_book=False)  # 待计算文件
+            for filexlsx in files:
+                if filexlsx[-5:-1] != '.xls' or '~$' in filexlsx:
+                    continue
+                file24path = os.path.join(root, filexlsx)
+                file24 = app_24.books.open(file24path)  # 24小时文件
+                # shtcount = file24.sheets.count  # sheet数量
+                # for sc in range(shtcount):
+                #     sht = file24.sheets[sc]  # sht：其中一天的sheet
+                yield file24.name, file24.sheets[0]
+                file24.close()
+                # shutil.copy(file24path, r"C:\Users\Administrator\Desktop\虹桥噪声桌面\计算备份\{}".format(
+                #     time.strftime('%H%M%S', time.localtime(time.time())) + '_' + filexlsx))  # 新增备份功能
+            for filexlsx in files:
+                os.remove(os.path.join(root, filexlsx))
+            app_24.quit()
 
 
 def count_hb(sht):
@@ -390,7 +393,7 @@ def cal_lwecpn(lamaxpb, hb):
     return float(Decimal(f'{result}').quantize(Decimal('0.00')))
 
 
-def cal_oneday_week(walkpath, app_24):
+def cal_oneday_week(walkpath):
     """
     核心功能函数，计算
     2021.04.14更新，分割线内是原本的单日计算，外部是合并的cal_week2周计算，合并计算后不用读取excel两次
@@ -416,7 +419,7 @@ def cal_oneday_week(walkpath, app_24):
     hb_week_all = {'day': 0, 'dust': 0, 'night': 0}
     dianwei, date, fx_name = '', '', ''
     # 这条线内的是单日计算---------------
-    for file24name, sht in yieldsht(walkpath, app_24):
+    for file24name, sht in yieldsht(walkpath):
         print(time.ctime(), file24name)
         try:
             dianwei, date, fx_name = dw_date(file24name)
@@ -488,10 +491,9 @@ def cal_oneday_week(walkpath, app_24):
     yield sumresult_week
 
 
-# def run_oneday_week(walkpath, tab_day, tab_week, app_24):
+# def run_oneday_week(walkpath, tab_day, tab_week):
 #     """
 #     程序入口，写入mysql
-#     :param app_24:
 #     :param walkpath:总目录,得到的下层目录作为yieldsht的os.walk的根目录
 #     :return:
 #     """
@@ -501,7 +503,7 @@ def cal_oneday_week(walkpath, app_24):
 #     for weekwalkpath, _, _ in os.walk(walkpath):
 #         if weekwalkpath == walkpath:
 #             continue
-#         sumresult = list(cal_oneday_week(weekwalkpath, app_24))  # 前7个元素是日平均，最后一个是周平均
+#         sumresult = list(cal_oneday_week(weekwalkpath))  # 前7个元素是日平均，最后一个是周平均
 #         # print(sumresult)
 #         for sumres in sumresult[:-1]:
 #             db.ins_to_tab(tab_day, sumres)  # 写入单日结果
@@ -509,10 +511,9 @@ def cal_oneday_week(walkpath, app_24):
 #             db.ins_to_tab(tab_week, sumresult[-1])  # 写入周结果
 
 
-def run_oneday_week(walkpath, tab_day, tab_week, app_24):
+def run_oneday_week(walkpath, tab_day, tab_week):
     """
     程序入口，写入mysql
-    :param app_24:
     :param walkpath:总目录,得到的下层目录作为yieldsht的os.walk的根目录
     :return:
     """
@@ -523,24 +524,16 @@ def run_oneday_week(walkpath, tab_day, tab_week, app_24):
         # 原本此处为了计算周平均，现在不需要，这样直接放入目录就能计算，否则要放入子目录
         # if weekwalkpath == walkpath:
         #     continue
-        for sumres in cal_oneday_week(weekwalkpath, app_24):
+        for sumres in cal_oneday_week(weekwalkpath):
             if sumres[1] == '周平均':
                 # db.ins_to_tab(tab_week, sumres)  # 写入周结果
                 continue
             db.ins_to_tab(tab_day, sumres)  # 写入单日结果
-
-
-def main():
-    app_24 = xlwings.App(visible=False, add_book=False)
-    while True:
-        try:
-            run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__', 'day_精密_2023',
-                            'week虹桥', app_24)
-        except Exception as e:
-            print(e)
-        time.sleep(3)
-    # app_24.kill()
+    db.con.close()
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__', 'day_精密_2023',
+                        'week虹桥')
+        time.sleep(3)

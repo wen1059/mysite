@@ -22,7 +22,8 @@ def read_dd(file: str | os.PathLike) -> pd.DataFrame:
     df['打卡日期'] = df['打卡时间'].dt.strftime('%Y-%m-%d')  # 打卡时间拆分为y-m-d和time
     df['打卡时间'] = df['打卡时间'].dt.strftime('%H:%M')
     # 如果是外勤，时间后面加上地址
-    # apply中lamdba后面的x是Series，axis=1表示x是每一行的Series，这个Series的Index是column名。
+    # df.apply中lamdba后面的x是Series，axis=1表示x是每一行的Series，这个Series的Index是column名。
+    # Series.apply中lamdba后面的x是单个元素，没有axis参数。
     df['打卡时间'] = df[['打卡时间', '打卡结果', '打卡地址']].apply(
         lambda x: ''.join(x[['打卡时间', '打卡地址']]) if x['打卡结果'] == '外勤' else x['打卡时间'], axis=1)
     df = df[['打卡日期', '姓名', '打卡时间']]  # 保留这三列

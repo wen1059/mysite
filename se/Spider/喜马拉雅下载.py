@@ -34,8 +34,8 @@ def Json_Get_links(Contents_IDS, headers):
         r1 = requests.get(Contents_ID, headers=headers)
         r1.encoding = r1.apparent_encoding
         results = json.loads(r1.text)
-        id = results['data']['trackId']
-        m4alinks = results['data']['src']
+        id = results['transdata']['trackId']
+        m4alinks = results['transdata']['src']
         contents['ID'] = id
         contents['M4aLinks'] = m4alinks
         Itemlists.append(contents)

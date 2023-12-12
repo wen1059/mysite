@@ -1,0 +1,45 @@
+{% extends 'se/appbase.html' %}
+{% block title %}index_se{% endblock title %}
+{% block active_idx %}active{% endblock active_idx %}
+{% block form %}{% endblock form %}
+{% block instructions %}{% endblock instructions %}
+{% block tab %}{% endblock tab %}
+{% block others %}
+    {% csrf_token %}
+    {# <br><br>#}
+    {#<img src="/static/200227gweummivwmsffb8z.gif" alt="test" class="mx-auto d-block" width="50%" height="50%">#}
+    {#<video src="/static/永合创信冻干机教程.mp4" controls></video>#}
+    <pre style="color: indigo; font-size: 12px; text-align: center" id="txt">
+{#    pre标签会保留空格和换行，并且字符等宽#}
+{#            {{ test|linebreaks }}#}
+    </pre>
+    <script>
+        $(document).ready(function () {
+            const csrf = $('input[name="csrfmiddlewaretoken"]').val();  //增加csrf变量将在data中传参以避免403错误
+
+            // 朝后端发送ajax请求
+            $.ajax({
+                // 1.指定朝哪个后端发送ajax请求
+                url: '', //不写就是朝当前地址提交【与form表单的action参数相同】
+                // 2.请求方式
+                type: 'post',  // 不指定默认就是get，都是小写
+                // 3.数据
+                data: {'frameindex': 'ftx', 'csrfmiddlewaretoken': csrf},
+                // 4.回调函数:当后端给你返回结果的时候会自动触发，args接受后端的返回结果
+                success: function (args) {
+                    const txts = args.txt; //后端返回的json用json.key取值
+                    let i = 0;
+                    let intv = setInterval(function () { //setInterval定时，每1000ms/30fps执行一次function
+                        if (i >= txts.length - 1) {
+                            clearInterval(intv);
+                            // i = 0
+                        }
+                        $('#txt').text(txts[i]);
+                        i++;
+                    }, 1000 / (30)) //根据后端传过来的fps做调整
+                }
+            })
+
+        })
+    </script>
+{% endblock others %}
