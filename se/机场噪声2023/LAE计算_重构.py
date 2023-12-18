@@ -3,12 +3,14 @@
 import math
 import os
 import re
-import time as time_
-from datetime import datetime, time
+import sys
+import time
+import datetime
 from decimal import Decimal
 
 import pandas as pd
 import pymysql
+import 机场噪声_2021虹桥.day_epn_acu_虹桥 as oldcal
 
 
 class Mysqldb:
@@ -34,16 +36,9 @@ class Mysqldb:
         sql = f'''INSERT INTO {tab} 
             ( pri, 点位, 日期,  Ldn, Nd_有效, Nn_有效, Nd_总, Nn_总, 记录时间 ) 
             VALUES 
-            (NULL, \'{values[0]}\', \'{values[1]}\', \'{values[2]}\', '{values[3]}\', \'{values[4]}\', \'{values[5]}\', \'{values[6]}\', now())'''
+            (NULL, '{values[0]}', '{values[1]}', '{values[2]}', '{values[3]}', '{values[4]}', '{values[5]}', '{values[6]}', now())'''
         self.curse.execute(sql)
         self.con.commit()
-
-
-def findfile24(walkpath: str):
-    for root, _, files in os.walk(walkpath):
-        for file in files:
-            if file.lower().endswith(('.xlsx', '.xls')) and not file.startswith('~$'):
-                yield os.path.join(root, file)
 
 
 def get_pos_and_date(filename):
@@ -59,10 +54,10 @@ def get_pos_and_date(filename):
     return position_, date_
 
 
-def readfile24(xls: str) -> (pd.DataFrame,):
+def readfile24(filepath: str) -> (pd.DataFrame,):
     """
     读取24小时文件
-    :param xls: 绝对路径
+    :param filepath: 绝对路径
     :return: (df1_day, df1_night, df2_day, df2_night)
     """
 
@@ -72,12 +67,12 @@ def readfile24(xls: str) -> (pd.DataFrame,):
         :param df: 读取出的原始df
         :return:
         """
-        df.loc[:, 'startTime'] = df['startTime'].apply(lambda x: datetime.time(x))  # datetime转成time用于判断昼夜。
-        df_day = df[(time(6, 0, 0) <= df['startTime']) & (df['startTime'] < time(22, 0, 0))]
+        df.loc[:, 'startTime'] = df['startTime'].apply(lambda x: datetime.datetime.time(x))  # datetime转成time用于判断昼夜。
+        df_day = df[(datetime.time(6, 0, 0) <= df['startTime']) & (df['startTime'] < datetime.time(22, 0, 0))]
         df_night = pd.concat([df, df_day]).drop_duplicates(keep=False)
         return df_day, df_night
 
-    df_org = pd.read_excel(xls, header=5)
+    df_org = pd.read_excel(filepath, header=5)
     df_org = df_org[df_org['LAE(10)'] != 'LAE(10)']  # 去除每个小时表格的表头。
     df1 = df_org.dropna(subset='LAE(10)')  # 仅保留LAE(10)有值的行，df1用于数据计算。
     df2 = df_org.dropna(subset='机型').ffill()  # 仅保留有航班的行，df2用于统计原始架次，对计算无影响。.ffill()向上填充空值.
@@ -98,21 +93,46 @@ def cal_ldn(df_day: pd.DataFrame, df_night: pd.DataFrame) -> float:
     return float(Decimal(f'{result}').quantize(Decimal('0.0')))
 
 
-if __name__ == '__main__':
-    import 机场噪声_2021虹桥.day_epn_acu_虹桥 as oldcal
+def prepare_insdata(filepath: str) -> list[str | float]:
+    """
+    准备好需要写入数据库的结果，没有数据库也可以写入csv。
+    :filepath: xlsx绝对路径
+    :return:
+    """
+    pos, dat = get_pos_and_date(os.path.split(filepath)[1])
+    df_cal_day, df_cal_night, df_allflt_day, df_allflt_night = readfile24(filepath)
+    rst_ldn = cal_ldn(df_cal_day, df_cal_night)
+    nd_effective, nn_effective = df_cal_day.shape[0], df_cal_night.shape[0]
+    nd_all, nn_all = df_allflt_day.shape[0], df_allflt_night.shape[0]
+    insdata = [pos, dat, rst_ldn, nd_effective, nn_effective, nd_all, nn_all]
+    return insdata
 
+
+def findfiles(walkpath: str):
+    if len(sys.argv) > 1:
+        for file in sys.argv[1:]:
+            yield file
+    else:
+        for root, _, files in os.walk(walkpath):
+            for file in files:
+                if file.lower().endswith(('.xlsx', '.xls')) and not file.startswith('~$'):
+                    yield os.path.join(root, file)
+
+
+def write_to_mysql(walkpath):
+    """
+    将结果写入数据库
+    :return:
+    """
     db = Mysqldb()
-    path_xlss = r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__'
+    for file24 in findfiles(walkpath):
+        insertdata = prepare_insdata(file24)
+        db.ins_to_tab('新标准计算', insertdata)
+    db.con.close()
+
+
+if __name__ == '__main__':
     while True:
-        for file24 in findfile24(path_xlss):
-            print(filename := os.path.split(file24)[1])
-            pos, dat = get_pos_and_date(filename)
-            df_cal_day, df_cal_night, df_allflt_day, df_allflt_night = readfile24(file24)
-            rst_ldn = cal_ldn(df_cal_day, df_cal_night)
-            nd_effective, nn_effective = df_cal_day.shape[0], df_cal_night.shape[0]
-            nd_all, nn_all = df_allflt_day.shape[0], df_allflt_night.shape[0]
-            insdata = [pos, dat, rst_ldn, nd_effective, nn_effective, nd_all, nn_all]
-            db.ins_to_tab('新标准计算', insdata)
+        write_to_mysql(path_xlss := r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__')
         oldcal.run_oneday_week(path_xlss, 'day_精密_2023', 'week虹桥')
-        time_.sleep(3)
-    # db.con.close()
+        time.sleep(3)

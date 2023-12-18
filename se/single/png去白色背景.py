@@ -25,7 +25,7 @@ def dropwhite(pic: str):
     for x in range(img.size[0]):
         for y in range(img.size[1]):
             r, g, b, _ = img.getpixel((x, y))
-            if r > 150 and g > 150 and b > 150:
+            if r > 180 and g > 180 and b > 180:
                 img.putpixel((x, y), (255, 255, 255, 0))
     img.save(pic + '_去底色.png')
 
