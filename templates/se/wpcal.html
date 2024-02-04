@@ -5,7 +5,8 @@
 {% block active_wpcal %}active{% endblock active_wpcal %}
 {% block form %}
     <hr>
-    <form action="/se/wpcal/" method="post" onsubmit=dosubmit()>{% csrf_token %}
+    <form action="/se/wpcal/" method="post" onsubmit=dosubmit()>
+        {% csrf_token %}
         <label> 开始日期: <input type="date" name="start"> </label>
         <label> --结束日期: <input type="date" name="end"> </label>
         <input type="submit" id="submit" style="height:30px;width: 200px">
@@ -19,14 +20,15 @@
 {% endblock instructions %}
 
 {% block tab %}
-    <table class="records">
-        <tbody>
+    <table class="table table-hover">
+        <thead class="table-success">
         <tr>
             <th>开始日期 / 结束日期</th>
             <th>输出目录</th>
             {#<th>用户</th>#}
             <th>操作时间</th>
         </tr>
+        <tbody>
         {% for data in datas %}
             <tr>
                 <td>{{ data.filein }}</td>

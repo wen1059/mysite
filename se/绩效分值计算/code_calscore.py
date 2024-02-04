@@ -12,6 +12,7 @@ import pymysql
 import xlwings
 from xlwings.main import Book, Sheet
 from selenium import webdriver
+from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from tqdm import tqdm
@@ -93,11 +94,11 @@ def download_dayworktab(start_time, end_time):
     """
     print('正在下载每日工作量表')
     # 设置下载路径，打开网页
-    options_ = webdriver.ChromeOptions()
+    options_ = Options()
     # options_.add_argument('--headless')  # 隐藏浏览器窗口，实测隐藏后下载不到文件，改最小化
     prefs = {'download.default_directory': resultdir}
     options_.add_experimental_option('prefs', prefs)
-    driver = webdriver.Chrome(options=options_)
+    driver = webdriver.Edge(options=options_)
     driver.minimize_window()  # 最小化窗口
     driver.implicitly_wait(5)
     driver.get('http://10.1.1.80:81/lims/')
@@ -415,4 +416,4 @@ def main(start, end):
 
 
 if __name__ == '__main__':
-    main('2023-01-01', '2023-02-05')
+    main('2023-01-01', '2023-01-15')

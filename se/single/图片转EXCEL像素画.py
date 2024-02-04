@@ -21,8 +21,8 @@ def calculate_average_rgb_squares(image_path: str, columns: int) -> np.ndarray:
         square_averages (np.ndarray): 包含每块平均RGB值的二维数组。
 
     """
-    # 读取图像
-    image = cv2.imread(image_path)
+    # 读取图像,-1表示以bgra模式读取
+    image = cv2.imread(image_path, -1)
 
     # 检查图像是否成功加载
     if image is None:
@@ -36,7 +36,7 @@ def calculate_average_rgb_squares(image_path: str, columns: int) -> np.ndarray:
     rows = int(height / block_size)
 
     # 初始化包含每块平均RGB值的数组
-    square_averages = np.zeros((rows, columns, 3), dtype=int)
+    square_averages = np.zeros((rows, columns, 4), dtype=int)
 
     # 遍历每块
     for i in range(rows):
@@ -78,9 +78,12 @@ def setcolor(image_path, columns):
     for i in range(rows):
         for j in range(columns):
             # opencv读取的是bgr顺序，改成rgb写入excel
-            b, g, r = square_averages[i, j]
+            b, g, r, a = square_averages[i, j]
             #  白色留空，不涂底色，达到透明效果
-            if r < 240 or g < 240 or b < 240:
+            white: bool = r > 240 and g > 240 and b > 240
+            #  png空白不做处理会被识别成黑色
+            blank: bool = a == 0
+            if not (white or blank):
                 sht[i, j].color = (r, g, b)
 
 
@@ -89,5 +92,5 @@ if __name__ == '__main__':
         img = sys.argv[1]
     else:
         # img = os.path.split(os.path.realpath(__file__))[0]
-        img = r"C:\Users\Administrator\Pictures\4o28b0625501ad13015501ad2bfc0696.JPG"
-    setcolor(img, 100)
+        img = r"C:\Users\Administrator\PycharmProjects\mysite\static\img\Hornet_Idle.png"
+    setcolor(img, 80)

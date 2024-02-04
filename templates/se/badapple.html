@@ -24,7 +24,7 @@
                 // 2.请求方式
                 type: 'post',  // 不指定默认就是get，都是小写
                 // 3.数据
-                data: {'frameindex': 'ftx', 'csrfmiddlewaretoken': csrf},
+                data: {'frameindex': '', 'csrfmiddlewaretoken': csrf},
                 // 4.回调函数:当后端给你返回结果的时候会自动触发，args接受后端的返回结果
                 success: function (args) {
                     const txts = args.txt; //后端返回的json用json.key取值

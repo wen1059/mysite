@@ -100,6 +100,28 @@ class Limsdb:
         rst = self.curse.fetchall()
         return rst
 
+    def count_by_method(self, method, analyte):
+        """
+        查询某一方法下某一分析项的数量
+        :param method: 标准号
+        :param analyte: 分析项
+        :return:
+        """
+        sql = f"""
+        SELECT
+            COUNT(*)
+        FROM
+            `dbs_lims2_release`.`lims_results` 
+        WHERE
+            `method` = "{method}" 
+            AND `analyte` = "{analyte}" 
+            AND `dateenterend` > '2022-12-30 00:00:00' 
+        """
+        self.curse.execute(sql)
+        self.connt.commit()
+        rst = self.curse.fetchone()[0]
+        return rst
+
 
 def searchlims(testno='', byno: str = '') -> tuple[tuple[Any, ...], ...]:
     """
@@ -117,6 +139,13 @@ def searchlims(testno='', byno: str = '') -> tuple[tuple[Any, ...], ...]:
         rst = db.search_by_projectno(testno, byno)
     db.close()
     return rst
+
+
+def count_by_method(method, analyte):
+    db = Limsdb()
+    count = db.count_by_method(method, analyte)
+    db.close()
+    return count
 
 
 def gentmp(rst, filename):
@@ -155,4 +184,7 @@ def gentmp(rst, filename):
     file.close()
     app.quit()
 
-# gentmp("VOC_土_36600", "I1232847", '1.xlsx')
+
+if __name__ == '__main__':
+    print(count_by_method('GB/T 5750.5-2006 3.2', '样品浓度'))
+    # gentmp("VOC_土_36600", "I1232847", '1.xlsx')

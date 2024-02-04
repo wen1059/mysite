@@ -51,7 +51,7 @@ def index_main(request):
     """
     主域名跳转到指定页面
     """
-    return HttpResponseRedirect('/se/sl')
+    return HttpResponseRedirect('/se/sl/')
 
 
 @gzip_page  # response采用gzip压缩后传到前端
@@ -61,7 +61,7 @@ def badapple(request):
     1、先视频转字符画保存在一个txt，2、读取txt返回json（value为数组）到前端，3、前端js依次读取数组显示。
     """
     if request.method == 'POST':
-        if request.POST.get('frameindex') == 'ftx':
+        if 'frameindex' in request.POST:
             randomlist = ['badapple',
                           '鸡你太美',
                           ]
@@ -265,3 +265,17 @@ def sl(request):
         Records.objects.create(timestamp=timezone.now(), filein=f'{testno} - {projectno}', fileout=filename,
                                fileout_f=filename, ip=ip, appname='lims查询')
         return HttpResponseRedirect('/se/sl/')
+
+
+def test(request):
+    if request.method == 'GET':
+        return render(request, 'se/test.html', {'data': 132})
+    elif request.method == 'POST':
+        # if 'method' in request.POST:
+        #     return HttpResponse('form1')
+        upf = request.FILES.get('upload')
+        with open(rf"C:\Users\Administrator\Desktop\ftp\{upf}1", 'wb+') as f:
+            for chuck in upf.chunks():
+                f.write(chuck)
+        return HttpResponseRedirect('/se/test/')
+
