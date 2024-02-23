@@ -48,10 +48,10 @@ options["probability"] = "true"
 # client.basicGeneralUrl(url, options)
 
 
-import pytesseract
-from PIL import Image
-
-image=Image.open(r"C:\Users\Administrator\PycharmProjects\se\baiduai\1.png").convert('L')
-image.show()
-text=pytesseract.image_to_string(image,lang='chi_sim')
-print(text)
+# import pytesseract
+# from PIL import Image
+#
+# image=Image.open(r"C:\Users\Administrator\PycharmProjects\se\baiduai\1.png").convert('L')
+# image.show()
+# text=pytesseract.image_to_string(image,lang='chi_sim')
+# print(text)

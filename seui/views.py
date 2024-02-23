@@ -63,7 +63,7 @@ def badapple(request):
     if request.method == 'POST':
         if 'frameindex' in request.POST:
             randomlist = ['badapple',
-                          '鸡你太美',
+                          # '鸡你太美',
                           ]
             with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
                 frametxts = f.read().split('\t')
