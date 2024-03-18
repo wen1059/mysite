@@ -1,4 +1,7 @@
+from glob import glob
 import os
+import sys
 
-instrumentname = os.path.split(os.path.realpath(__file__))[1].replace('.py', '')
-print(instrumentname)
+files  = glob(os.path.join(os.path.split(sys.argv[0])[0], '*.*'))
+for file in files:
+    print(file)

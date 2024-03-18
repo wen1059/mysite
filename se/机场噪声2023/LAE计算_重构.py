@@ -47,7 +47,7 @@ def get_pos_and_date(filename):
     :param filename:xlsx名称
     :return:
     """
-    if f24n_re := re.search(r'(\d{1,2}.*#)(\d{2,4}.*).xls*', filename):
+    if f24n_re := re.search('(\d{1,2}.*#)(\d{2,4}.*)\.xls.', filename):
         position_, date_ = f24n_re.group(1), f24n_re.group(2)
     else:
         position_, date_ = '00', '0000',
@@ -131,8 +131,17 @@ def write_to_mysql(walkpath):
     db.con.close()
 
 
+def write_to_csv(walkpath):
+    """
+    没有数据库时，将结果写入csv
+    :param walkpath:
+    :return:
+    """
+    # todo
+
+
 if __name__ == '__main__':
     while True:
         write_to_mysql(path_xlss := r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__')
-        oldcal.run_oneday_week(path_xlss, 'day_精密_2023', 'week虹桥')
+        # oldcal.run_oneday_week(path_xlss, 'day_精密_2023', 'week虹桥')
         time.sleep(3)

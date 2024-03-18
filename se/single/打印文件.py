@@ -6,22 +6,27 @@ import time
 import win32print
 # import tempfile
 import win32api
+import sys
+from glob import glob
+import os
 
 
-def print_file(filename):
+def print_file(filepath, printer_name=None):
     # open(filename,"r")
     win32api.ShellExecute(
         0,
         "print",
-        filename,
-        '/d:"%s"' % win32print.GetDefaultPrinter(),
+        filepath,
+        f'/d:"{printer_name}"' if printer_name else None,
         ".",
         0
     )
 
 
-path = r"C:\Users\Administrator\Desktop\新建文件夹 (2)\新建文件夹"
-os.chdir(path)
-for file in os.listdir():
+if len(sys.argv) > 1:
+    files = sys.argv[1:]
+else:
+    files = glob(os.path.join(os.path.split(sys.argv[0])[0], '*.*'))
+for file in files:
     print_file(file)
     time.sleep(3)
