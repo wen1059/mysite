@@ -67,12 +67,6 @@ def badapple(request):
                           ]
             with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
                 frametxts = f.read().split('\t')
-            # 保存txt到数据库，保存完后注释掉，临时方案，后面重构。太卡放弃。
-            # for frame, txt in enumerate(frametxts):
-            #     Indextxt(frame=frame, txt=txt).save()
-            # idx = int(idx)  # post过来是str
-            # txt = Indextxt.objects.get(frame=idx).txt  #  数据库方案，放弃
-            # txt = frametxts[idx]
             txt = {'txt': frametxts[40:]}  # 跳过前40帧
             return JsonResponse(txt)  # 改为全部帧传到前端js控制播放
     return render(request, 'se/badapple.html', )
@@ -128,7 +122,6 @@ def ptc(request):
         form = ModelFormWithFileField()
         datas = Records.objects.filter(appname='pdftocsv').order_by('-timestamp')
         content = {'datas': datas, 'form': form}
-        # messages.info(request, '12\n34')
         return render(request, 'se/ptc.html', content)
     elif request.method == 'POST':
         # pdf转csv提交按钮
@@ -147,8 +140,8 @@ def ptc(request):
             ip = get_ip(request)
             Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
                                    fileout_f=fileout_f, ip=ip, appname='pdftocsv')
-        content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-        messages.info(request, content)
+        # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
+        # messages.info(request, content)
         return HttpResponseRedirect('/se/ptc/')
 
 
@@ -176,8 +169,8 @@ def ptw(request):
             ip = get_ip(request)
             Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
                                    fileout_f=fileout_f, ip=ip, appname='pdftoword')
-        content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-        messages.info(request, content)
+        # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
+        # messages.info(request, content)
         return HttpResponseRedirect('/se/ptw/')
 
 
@@ -205,8 +198,8 @@ def ppr(request):
             ip = get_ip(request)
             Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
                                    fileout_f=fileout_f, ip=ip, appname='pdfpasswdremove')
-        content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-        messages.info(request, content)
+        # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
+        # messages.info(request, content)
         return HttpResponseRedirect('/se/ppr/')
 
 
@@ -239,8 +232,8 @@ def opr(request):
             ip = get_ip(request)
             Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
                                    fileout_f=fileout_f, ip=ip, appname='officepasswdremove')
-        content = '\n'.join([i for i in officefiles]) if officefiles else '没有要转换的文件'
-        messages.info(request, content)
+        # content = '\n'.join([i for i in officefiles]) if officefiles else '没有要转换的文件'
+        # messages.info(request, content)
         return HttpResponseRedirect('/se/opr/')
 
 
@@ -271,11 +264,12 @@ def test(request):
     if request.method == 'GET':
         return render(request, 'se/test.html', {'data': 132})
     elif request.method == 'POST':
-        # if 'method' in request.POST:
-        #     return HttpResponse('form1')
-        upf = request.FILES.get('upload')
-        with open(rf"C:\Users\Administrator\Desktop\ftp\{upf}1", 'wb+') as f:
-            for chuck in upf.chunks():
-                f.write(chuck)
+        print(request.POST)
+        if 'method' in request.POST:
+            return HttpResponse('form1')
+        # upf = request.FILES.get('upload')
+        # with open(rf"C:\Users\Administrator\Desktop\ftp\{upf}1", 'wb+') as f:
+        #     for chuck in upf.chunks():
+        #         f.write(chuck)
         return HttpResponseRedirect('/se/test/')
 

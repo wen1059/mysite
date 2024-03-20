@@ -1,17 +1,15 @@
-{% extends 'se/appbase.html' %}
+{% extends 'se/base.html' %}
 {% block title %}BadApple!!{% endblock title %}
 {% block active_idx %}active{% endblock active_idx %}
-{% block form %}{% endblock form %}
-{% block instructions %}{% endblock instructions %}
-{% block tab %}{% endblock tab %}
-{% block others %}
+
+{% block base %}
     {% csrf_token %}
     {# <br><br>#}
     {#<img src="/static/200227gweummivwmsffb8z.gif" alt="test" class="mx-auto d-block" width="50%" height="50%">#}
     {#<video src="/static/永合创信冻干机教程.mp4" controls></video>#}
     <pre style="color: indigo; font-size: 12px; text-align: center" id="txt">
-{#    pre标签会保留空格和换行，并且字符等宽#}
-{#            {{ test|linebreaks }}#}
+    {#    pre标签会保留空格和换行，并且字符等宽#}
+    {#            {{ test|linebreaks }}#}
     </pre>
     <script>
         $(document).ready(function () {
@@ -42,4 +40,4 @@
 
         })
     </script>
-{% endblock others %}
+{% endblock base %}

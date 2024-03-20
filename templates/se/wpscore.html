@@ -1,8 +1,8 @@
-{% extends 'se/appbase.html' %}
+{% extends 'se/base.html' %}
 {% block title %}绩效分值{% endblock title %}
 {% block active_wpscore %}active{% endblock active_wpscore %}
 
-{% block form %}
+{% block base %}
     <hr>
 {#    <a href="/admin/seui/scores/">管理员登录: administrator, 123456</a>#}
     <hr>
@@ -13,11 +13,7 @@
         <input type="submit" style="height:50px;width: 200px">
         <br>
     </form>
-{% endblock form %}
 
-{% block instructions %}{% endblock instructions %}
-
-{% block tab %}
     <hr>
     <h1 style="color: blue">分值信息</h1>
     <table class="table table-hover">
@@ -42,6 +38,4 @@
         {% endfor %}
         </tbody>
     </table>
-{% endblock tab %}
-
-{% block others %}{% endblock others %}
+{% endblock base %}

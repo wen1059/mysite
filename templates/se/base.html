@@ -1,0 +1,90 @@
+<!--从appbase分离出部分模板,包含head、nav、进度条模态框-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}  <!--加载static文件-->
+    <link rel="shortcut icon" href="{% static 'img/Hornet_Idle.png' %}"/>
+    <meta charset="UTF-8">
+    <!--为了让 Bootstrap 开发的网站对移动设备友好，确保适当的绘制和触屏缩放，需要在网页的 head 之中添加 viewport meta 标签-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 新 Bootstrap5 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
+    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+
+<body>
+<div class="container mt-2">
+    <!-- Nav pills -->
+    <ul class="nav nav-pills justify-content-center" role="tablist">
+        <li class="nav-item"><a href="/se/" class="nav-link {% block active_idx %}{% endblock active_idx %}">BadApple!!</a></li>
+        <li class="nav-item"><a href="/se/wpscore" class="nav-link {% block active_wpscore %}{% endblock active_wpscore %}">绩效分值</a></li>
+        <li class="nav-item"><a href="/se/wpcal/" class="nav-link {% block active_wpcal %}{% endblock active_wpcal %}">绩效计算</a></li>
+        <li class="nav-item"><a href="/se/ptc/" class="nav-link {% block active_ptc %}{% endblock active_ptc %}">pdf转csv</a></li>
+        <li class="nav-item"><a href="/se/ptw/" class="nav-link {% block active_ptw %}{% endblock active_ptw %}">pdf转word</a></li>
+        <li class="nav-item"><a href="/se/ppr/" class="nav-link {% block active_ppr %}{% endblock active_ppr %}">pdf移除加密</a></li>
+        <li class="nav-item"><a href="/se/opr/" class="nav-link {% block active_opr %}{% endblock active_opr %}">office移除加密</a></li>
+        <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>
+    </ul>
+{% block base %}
+{% endblock base %}
+</div>
+
+<!-- 进度条模态框 -->
+<div class="modal" id="progressModal" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">正在处理</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <!-- 模态框内容 -->
+            <div class="modal-body">
+                <!--放在模态框里面的进度条-->
+                <div class="progress">
+                    <div id="myDiv" class="progress-bar progress-bar-striped active" role="progressbar"
+                         aria-valuenow="45"
+                         aria-valuemin="0" aria-valuemax="100" style="width: 0">
+                        <!-- <span class="sr-only">45% Complete</span> -->
+                        0%
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end 模态框 -->
+
+<script>
+function dosubmit() {
+    //表单提交后禁用按钮
+    //const btnSubmit = document.getElementById("submit"); //获取表单提交按钮
+    //btnSubmit.disabled = true; //将表单提交按钮设置为不可用，可以避免用户再次点击提交按钮进行提交
+    //btnSubmit.style.color = "SlateGray"; //变成灰色
+
+    //表单提交后在模态框显示虚假进度条
+    $(document).ready(function () {
+        $("#progressModal").modal('show')
+    });
+    let i = 0;
+    let mDiv = setInterval(function () {
+        if (i >= 99) {
+            clearInterval(mDiv);
+            //i = 0
+        }
+        const myDiv = document.getElementById("myDiv");
+        myDiv.style.width = i + "%";
+        myDiv.innerText = i + "%";
+        i++;
+    }, 500);
+    //返回true让表单可以提交
+    return true;
+}
+</script>
+
+</body>
+</html>
