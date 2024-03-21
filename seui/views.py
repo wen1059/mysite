@@ -114,32 +114,69 @@ def wpcal(request):
         return HttpResponseRedirect('/se/wpcal/')
 
 
+class UpfHandle:
+    """
+    文件上传后处理并返回新文件，这些网页的类。
+    """
+
+    def __init__(self, appname):
+        self.appname = appname  # appname，文件上传到media下的子目录名/数据库appname字段
+        self.sql_datas = Records.objects.filter(appname=self.appname).order_by('-timestamp')  # 数据库data
+        self.content = {'datas': self.sql_datas, 'basename': self.appname}  # render到前端的数据
+        self.destination = ''  # 上传文件的绝对路径，会由后续函数更新
+        self.new_ext = ''  # 处理后新文件的扩展名，为了重命名fileout，会由后续函数更新
+
+    def uploadfile(self, request):
+        """
+        简单文件上传，通过with open保存。
+        <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="upf" >
+        <input type="submit">
+        </form>
+        :param basedir: 保存到的子目录（appname）
+        :param request:
+        :return:
+        """
+        assert request.method == 'POST'
+        upf = request.FILES.get('upf')
+        with open(destination := os.path.join(settings.MEDIA_ROOT, self.appname, upf.name), 'wb+') as f:
+            for chuck in upf.chunks():
+                f.write(chuck)
+        self.destination = destination
+
+    def ptc_handle(self, request):
+        """
+        处理上传的文件
+        :param request:
+        :return:
+        """
+        from se.single import pdf_to_csv
+        pdf_to_csv.transe(self.destination)
+        self.new_ext = '.csv'
+
+    def create_records(self, request):
+        Records.objects.create(timestamp=timezone.now(),
+                               filein=(filein := os.path.split(self.destination)[-1]),
+                               fileout=filein.split('.')[0] + self.new_ext,
+                               ip=get_ip(request),
+                               appname='pdftocsv'
+                               )
+
+
 def ptc(request):
     """
     pdf转csv页面
     """
+    uph = UpfHandle('pdftocsv')
     if request.method == 'GET':
-        form = ModelFormWithFileField()
-        datas = Records.objects.filter(appname='pdftocsv').order_by('-timestamp')
-        content = {'datas': datas, 'form': form}
-        return render(request, 'se/ptc.html', content)
+        return render(request, 'se/ptc.html', uph.content)
     elif request.method == 'POST':
         # pdf转csv提交按钮
         # 已合并至ptc()，先前作为提交按钮的view函数，现在提交按钮也定位到ptc(), 根据request.method判断。
-        from se.single import pdf_to_csv
-        files = upload_file_by_modelform(request, appname='pdftocsv')  # 上传文件到media，返回原文件名列表
-        pdffiles = [i for i in files if i.lower().endswith('.pdf')]
-        for orgname in pdffiles:
-            # 上传后文件会被改名，通过原文件名查找上传后的名字，格式为子目录(如果有)+修改后的名字
-            # 有重复上传的通过order_by('-id')[0]取最近一次上传，django不支持负索引，通过.file取file字段
-            uploadename = ModelWithFileField.objects.filter(fileorgname=orgname).order_by('-id')[0].file.name
-            fullname = os.path.join(settings.MEDIA_ROOT, uploadename)  # orgname的绝对路径,用于se程序
-            pdf_to_csv.transe(fullname)
-            fileout = uploadename.replace(uploadename[-4:], '.csv')  # 子目录+csv文件名，用于media连接
-            fileout_f = os.path.split(fileout)[-1]  # csv文件名，用于显示
-            ip = get_ip(request)
-            Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
-                                   fileout_f=fileout_f, ip=ip, appname='pdftocsv')
+        uph.uploadfile(request)
+        uph.ptc_handle(request)
+        uph.create_records(request)
         # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
         # messages.info(request, content)
         return HttpResponseRedirect('/se/ptc/')
@@ -262,14 +299,8 @@ def sl(request):
 
 def test(request):
     if request.method == 'GET':
-        return render(request, 'se/test.html', {'data': 132})
+        return render(request, 'se/test.html')
     elif request.method == 'POST':
-        print(request.POST)
-        if 'method' in request.POST:
-            return HttpResponse('form1')
-        # upf = request.FILES.get('upload')
-        # with open(rf"C:\Users\Administrator\Desktop\ftp\{upf}1", 'wb+') as f:
-        #     for chuck in upf.chunks():
-        #         f.write(chuck)
+        # print(request.POST, request.FILES)
+        upload_file(request, 'test')
         return HttpResponseRedirect('/se/test/')
-

@@ -54,6 +54,7 @@ def uploade_to(instance, filename):
 
 class ModelWithFileField(models.Model):
     """
+    useless，用with open方式替代instance.save()/form.save()
     上传文件的模型
     """
 
@@ -96,7 +97,9 @@ class MultipleFileField(forms.FileField):
 class ModelFormWithFileField(forms.ModelForm):
     """
     上传文件的模型表单
-    非必要，可以在前端直接用html写表单
+    useless，可以在前端直接用html写表单,
+    HTML: <input type="file" name="upf" >
+    request.FILES: <MultiValueDict: {'upf': [<InMemoryUploadedFile: 01a455554c02ba000001bf72ddb34d.jpg (image/jpeg)>]}>
     """
 
     class Meta:

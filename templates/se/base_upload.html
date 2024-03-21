@@ -6,7 +6,7 @@
     <form class="mb-3" method="post" enctype="multipart/form-data"
           {% block action %}action=""{% endblock action %} onsubmit=dosubmit()>
         {% csrf_token %}
-        {{ form }}
+        <input type="file" name="upf" >
         <input type="submit" id="submit">
     </form>
 
@@ -27,7 +27,7 @@
         {% for data in datas %}
             <tr>
                 <td>{{ data.filein }}</td>
-                <td><a href='/media/{{ data.fileout }}'>{{ data.fileout_f }}</a></td>
+                <td><a href='/media/{{ basename }}/{{ data.fileout }}'>{{ data.fileout }}</a></td>
                 {#<td>{{ data.ip }}</td>#}
                 <td>{{ data.timestamp }}</td>
             </tr>
