@@ -30,6 +30,7 @@ def get_ip(request):
 
 def upload_file_by_modelform(request, appname):
     """
+    useless,用简单文件上传取代
     上传文件提交按钮
     通过模型表单来上传文件
     appname: 通过调用的app指定appname，写入字段，upload_to函数会读取让文件保存在相应的子目录
@@ -69,7 +70,7 @@ def badapple(request):
                 frametxts = f.read().split('\t')
             txt = {'txt': frametxts[40:]}  # 跳过前40帧
             return JsonResponse(txt)  # 改为全部帧传到前端js控制播放
-    return render(request, 'se/badapple.html', )
+    return render(request, 'se/badapple.html', {'appname': 'badapple'})
 
 
 def wpscore(request):
@@ -114,7 +115,7 @@ def wpcal(request):
         return HttpResponseRedirect('/se/wpcal/')
 
 
-class UpfHandle:
+class UploadHandle:
     """
     文件上传后处理并返回新文件，这些网页的类。
     """
@@ -122,7 +123,7 @@ class UpfHandle:
     def __init__(self, appname):
         self.appname = appname  # appname，文件上传到media下的子目录名/数据库appname字段
         self.sql_datas = Records.objects.filter(appname=self.appname).order_by('-timestamp')  # 数据库data
-        self.content = {'datas': self.sql_datas, 'basename': self.appname}  # render到前端的数据
+        self.content = {'datas': self.sql_datas, 'appname': self.appname}  # render到前端的数据
         self.destination = ''  # 上传文件的绝对路径，会由后续函数更新
         self.new_ext = ''  # 处理后新文件的扩展名，为了重命名fileout，会由后续函数更新
 
@@ -155,12 +156,32 @@ class UpfHandle:
         pdf_to_csv.transe(self.destination)
         self.new_ext = '.csv'
 
+    def ptw_handle(self, request):
+        from se.single import pdf_to_word
+        pdf_to_word.convert(self.destination)
+        self.new_ext = '.docx'
+
+    def ppr_handle(self, request):
+        from se.single import pdfpasswdremover
+        pdfpasswdremover.unlock_cover(self.destination)
+        self.new_ext = '.pdf'
+
+    def opr_handle(self, request):
+        from se.single import excel去加密 as epr
+        from se.single import word去加密 as wpr
+        if self.destination.lower().endswith(('.xls', '.xlsx')):
+            epr.run(self.destination)
+            self.new_ext = '.xlsx'
+        elif self.destination.lower().endswith(('.doc', '.docx')):
+            wpr.run(self.destination)
+            self.new_ext = '.docx'
+
     def create_records(self, request):
         Records.objects.create(timestamp=timezone.now(),
                                filein=(filein := os.path.split(self.destination)[-1]),
                                fileout=filein.split('.')[0] + self.new_ext,
                                ip=get_ip(request),
-                               appname='pdftocsv'
+                               appname=self.appname
                                )
 
 
@@ -168,15 +189,15 @@ def ptc(request):
     """
     pdf转csv页面
     """
-    uph = UpfHandle('pdftocsv')
+    handle = UploadHandle('pdftocsv')
     if request.method == 'GET':
-        return render(request, 'se/ptc.html', uph.content)
+        return render(request, 'se/base_upload.html', handle.content)
     elif request.method == 'POST':
         # pdf转csv提交按钮
         # 已合并至ptc()，先前作为提交按钮的view函数，现在提交按钮也定位到ptc(), 根据request.method判断。
-        uph.uploadfile(request)
-        uph.ptc_handle(request)
-        uph.create_records(request)
+        handle.uploadfile(request)
+        handle.ptc_handle(request)
+        handle.create_records(request)
         # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
         # messages.info(request, content)
         return HttpResponseRedirect('/se/ptc/')
@@ -186,28 +207,13 @@ def ptw(request):
     """
     pdf转word页面
     """
+    handle = UploadHandle('pdftoword')
     if request.method == 'GET':
-        form = ModelFormWithFileField()
-        datas = Records.objects.filter(appname='pdftoword').order_by('-timestamp')
-        content = {'datas': datas, 'form': form}
-        return render(request, 'se/ptw.html', content)
+        return render(request, 'se/base_upload.html', handle.content)
     elif request.method == 'POST':
-        from se.single import pdf_to_word
-        files = upload_file_by_modelform(request, appname='pdftoword')  # 上传文件到media，返回原文件名列表
-        pdffiles = [i for i in files if i.lower().endswith('.pdf')]
-        for orgname in pdffiles:
-            # 上传后文件会被改名，通过原文件名查找上传后的名字，格式为子目录(如果有)+修改后的名字
-            # 有重复上传的通过order_by('-id')[0]取最近一次上传，django不支持负索引，通过.file取file字段
-            uploadename = ModelWithFileField.objects.filter(fileorgname=orgname).order_by('-id')[0].file.name
-            fullname = os.path.join(settings.MEDIA_ROOT, uploadename)  # orgname的绝对路径
-            pdf_to_word.convert(fullname)
-            fileout = uploadename.replace(uploadename[-4:], '.docx')  # 子目录+word文件名，用于media连接
-            fileout_f = os.path.split(fileout)[-1]  # word文件名，用于显示
-            ip = get_ip(request)
-            Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
-                                   fileout_f=fileout_f, ip=ip, appname='pdftoword')
-        # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-        # messages.info(request, content)
+        handle.uploadfile(request)
+        handle.ptw_handle(request)
+        handle.create_records(request)
         return HttpResponseRedirect('/se/ptw/')
 
 
@@ -217,26 +223,13 @@ def ppr(request):
     :param request:
     :return:
     """
+    handle = UploadHandle('pdfpasswdremove')
     if request.method == 'GET':
-        form = ModelFormWithFileField()
-        datas = Records.objects.filter(appname='pdfpasswdremove').order_by('-timestamp')
-        content = {'datas': datas, 'form': form}
-        return render(request, 'se/ppr.html', content)
+        return render(request, 'se/base_upload.html', handle.content)
     elif request.method == 'POST':
-        from se.single import pdfpasswdremover
-        files = upload_file_by_modelform(request, appname='pdfpasswdremove')
-        pdffiles = [i for i in files if i.lower().endswith('.pdf')]
-        for orgname in pdffiles:
-            uploadename = ModelWithFileField.objects.filter(fileorgname=orgname).order_by('-id')[0].file.name
-            fullname = os.path.join(settings.MEDIA_ROOT, uploadename)  # orgname的绝对路径
-            pdfpasswdremover.unlock_cover(fullname)
-            fileout = uploadename  # .replace(uploadename[-4:], '_PasswordRemoved.pdf')
-            fileout_f = os.path.split(fileout)[-1]
-            ip = get_ip(request)
-            Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
-                                   fileout_f=fileout_f, ip=ip, appname='pdfpasswdremove')
-        # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-        # messages.info(request, content)
+        handle.uploadfile(request)
+        handle.ppr_handle(request)
+        handle.create_records(request)
         return HttpResponseRedirect('/se/ppr/')
 
 
@@ -246,31 +239,13 @@ def opr(request):
     :param request:
     :return:
     """
+    handle = UploadHandle('officepasswdremove')
     if request.method == 'GET':
-        form = ModelFormWithFileField()
-        datas = Records.objects.filter(appname='officepasswdremove').order_by('-timestamp')
-        content = {'datas': datas, 'form': form}
-        return render(request, 'se/opr.html', content)
+        return render(request, 'se/base_upload.html', handle.content)
     elif request.method == 'POST':
-        from se.single import excel去加密 as epr
-        from se.single import word去加密 as wpr
-        files = upload_file_by_modelform(request, appname='officepasswdremove')
-        xlsfiles = [i for i in files if i.lower().endswith(('.xls', '.xlsx'))]
-        docfiles = [i for i in files if i.lower().endswith(('.doc', '.docx'))]
-        for orgname in (officefiles := xlsfiles + docfiles):
-            uploadename = ModelWithFileField.objects.filter(fileorgname=orgname).order_by('-id')[0].file.name
-            fullname = os.path.join(settings.MEDIA_ROOT, uploadename)  # orgname的绝对路径
-            if orgname in xlsfiles:
-                epr.run(fullname)
-            elif orgname in docfiles:
-                wpr.run(fullname)
-            fileout = uploadename if uploadename.lower().endswith('x') else uploadename + 'x'  # 上传的旧版文件会转为新版
-            fileout_f = os.path.split(fileout)[-1]
-            ip = get_ip(request)
-            Records.objects.create(timestamp=timezone.now(), filein=orgname, fileout=fileout,
-                                   fileout_f=fileout_f, ip=ip, appname='officepasswdremove')
-        # content = '\n'.join([i for i in officefiles]) if officefiles else '没有要转换的文件'
-        # messages.info(request, content)
+        handle.uploadfile(request)
+        handle.opr_handle(request)
+        handle.create_records(request)
         return HttpResponseRedirect('/se/opr/')
 
 
@@ -302,5 +277,5 @@ def test(request):
         return render(request, 'se/test.html')
     elif request.method == 'POST':
         # print(request.POST, request.FILES)
-        upload_file(request, 'test')
+        # upload_file(request, 'test')
         return HttpResponseRedirect('/se/test/')

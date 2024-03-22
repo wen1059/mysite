@@ -19,13 +19,13 @@
 <div class="container mt-2">
     <!-- Nav pills -->
     <ul class="nav nav-pills justify-content-center" role="tablist">
-        <li class="nav-item"><a href="/se/" class="nav-link {% block active_idx %}{% endblock active_idx %}">BadApple!!</a></li>
+        <li class="nav-item"><a href="/se/" class="nav-link {% if appname == 'badapple' %}active{% endif %}">BadApple!!</a></li>
         <li class="nav-item"><a href="/se/wpscore" class="nav-link {% block active_wpscore %}{% endblock active_wpscore %}">绩效分值</a></li>
         <li class="nav-item"><a href="/se/wpcal/" class="nav-link {% block active_wpcal %}{% endblock active_wpcal %}">绩效计算</a></li>
-        <li class="nav-item"><a href="/se/ptc/" class="nav-link {% block active_ptc %}{% endblock active_ptc %}">pdf转csv</a></li>
-        <li class="nav-item"><a href="/se/ptw/" class="nav-link {% block active_ptw %}{% endblock active_ptw %}">pdf转word</a></li>
-        <li class="nav-item"><a href="/se/ppr/" class="nav-link {% block active_ppr %}{% endblock active_ppr %}">pdf移除加密</a></li>
-        <li class="nav-item"><a href="/se/opr/" class="nav-link {% block active_opr %}{% endblock active_opr %}">office移除加密</a></li>
+        <li class="nav-item"><a href="/se/ptc/" class="nav-link {% if appname == 'pdftocsv' %}active{% endif %}">pdf转csv</a></li>
+        <li class="nav-item"><a href="/se/ptw/" class="nav-link {% if appname == 'pdftoword' %}active{% endif %}">pdf转word</a></li>
+        <li class="nav-item"><a href="/se/ppr/" class="nav-link {% if appname == 'pdfpasswdremove' %}active{% endif %}">pdf移除加密</a></li>
+        <li class="nav-item"><a href="/se/opr/" class="nav-link {% if appname == 'officepasswdremove' %}active{% endif %}">office移除加密</a></li>
         <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>
     </ul>
 {% block base %}
