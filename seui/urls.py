@@ -14,5 +14,6 @@ urlpatterns = [
     path('ppr/', views.ppr, name='ppr'),  # pdf移除密码
     path('opr/', views.opr, name='opr'),  # excel、word移除密码
     path('sl/', views.sl, name='sl'),  # 生成lims谱图通用模板
+    path('dp/', views.drawpic, name='dp')  # 绘制渐变图
 
 ]

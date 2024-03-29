@@ -1,13 +1,18 @@
 <body>
 <form method="post">
-    {% csrf_token %}
-    <input type="text" name="lable">
-    <input type="submit" name="submit" >
+    <label>
+        {% csrf_token %}
+        <input type="text" name="lable" style="color: mistyrose">
+    </label>
+    <input type="submit" name="submit">
 </form>
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <input type="file" name="upf" >
+    <input type="file" name="upf">
     <input type="submit">
 </form>
+
+
+
 </body>

@@ -1,0 +1,16 @@
+{% extends 'se/base.html' %}
+{% block title %}绘图{% endblock title %}
+{% block base %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="color"></label><input type="color" class="" id="color" name="selectedcolor">
+        <input type="submit" class="">
+    </form>
+{#    <script>#}
+{#        document.querySelector("#color").onchange = function () {#}
+{#            document.getElementById('color').click(); // 必须添加触发click事件否则不能通过点击确定按钮触发更改颜色#}
+{#            document.getElementById('selectedcolor').value = this.value#}
+{#        }#}
+{#    </script>#}
+    <img src="data:img/png;base64,{{ img }}" alt="">
+{% endblock base %}

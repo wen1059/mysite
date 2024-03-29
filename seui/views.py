@@ -272,10 +272,39 @@ def sl(request):
         return HttpResponseRedirect('/se/sl/')
 
 
+def drawpic(request):
+    """
+    绘制渐变图
+    :param request:
+    :return:
+    """
+    if request.method == 'POST':
+        from se.single.drawgradient import DrawGradient
+        from io import BytesIO
+        import base64
+        dg = DrawGradient()
+        # lamba：16进制颜色转rgb
+        dg.basecolor = (lambda x: (int(x[1:3], 16), int(x[3:5], 16), int(x[5:], 16)))(request.POST['selectedcolor'])
+        dg.drawpic()
+        buffer = BytesIO()
+        dg.im.save(buffer, 'png')
+        buffer.seek(0)
+        return render(request, 'se/drawpic.html',
+                      {'img': base64.encodebytes(buffer.read()).decode(), 'appname': 'drawpic'})
+    return render(request, 'se/drawpic.html', {'appname': 'drawpic'})
+
+
 def test(request):
-    if request.method == 'GET':
-        return render(request, 'se/test.html')
-    elif request.method == 'POST':
-        # print(request.POST, request.FILES)
-        # upload_file(request, 'test')
-        return HttpResponseRedirect('/se/test/')
+    if request.method == 'POST':
+        from se.single.drawgradient import DrawGradient
+        from io import BytesIO
+        import base64
+        dg = DrawGradient()
+        # lamba：16进制颜色转rgb
+        dg.basecolor = (lambda x: (int(x[1:3], 16), int(x[3:5], 16), int(x[5:], 16)))(request.POST['selectedcolor'])
+        dg.drawpic()
+        buffer = BytesIO()
+        dg.im.save(buffer, 'png')
+        buffer.seek(0)
+        return render(request, 'se/test.html', {'img': base64.encodebytes(buffer.read()).decode()})
+    return render(request, 'se/test.html')
