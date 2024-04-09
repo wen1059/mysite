@@ -11,8 +11,8 @@ def epa_rounding(
         mdl: int = 10,
 ) -> float | int | str:
     """
-    四舍六入五成双保留指定有效位数，同时满足不超过检出限有效位数。
-    放大到10^i次方倍，如保留3位有效数字就把数字放大到xxx.
+    四舍六入五成双保留指定有效位数，同时满足不超过检出限位数。
+    放大到10^i次方倍，如保留3位有效数字就把数字放大到xxx.xxx
     修约到整数，再除以放大倍数
 
     :param num: 要修约的数字
@@ -40,7 +40,7 @@ def epa_rounding(
         behind_0 = rst if (rst := re.search('\.(0*)', str(num)).group(1)) else ''  # 小数点后面的0
         zoom = digit + len(behind_0)  # 小数点后每增加一个0，zoom+1
 
-    zoom = mdl if zoom > mdl else zoom  # 根据检出限修正，达到这个效果：测定结果小于xxx时，结果保留小数和检出限一致。
+    zoom = min(zoom, mdl)  # 根据检出限修正，达到这个效果：测定结果小于xxx时，结果保留小数和检出限一致。
 
     # 放大10**zoom次方后的数字
     num_zoomed = num * (10 ** zoom)

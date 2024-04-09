@@ -15,7 +15,7 @@ except ImportError:
     import pyperclip
 
 basedir = r'\\10.1.210.119\ETims\建科'
-instrumentname = os.path.split(os.path.realpath(__file__))[1].replace('.py', '')
+instrumentname = os.path.split(__file__)[1].split('.')[0]
 # instrumentname = 'SEMTEC_212'
 batch = pyperclip.paste()
 files = sys.argv[1:]

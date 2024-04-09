@@ -52,7 +52,7 @@ def index_main(request):
     """
     主域名跳转到指定页面
     """
-    return HttpResponseRedirect('/se/sl/')
+    return HttpResponseRedirect('/se/ptc/')
 
 
 @gzip_page  # response采用gzip压缩后传到前端
@@ -295,16 +295,6 @@ def drawpic(request):
 
 
 def test(request):
-    if request.method == 'POST':
-        from se.single.drawgradient import DrawGradient
-        from io import BytesIO
-        import base64
-        dg = DrawGradient()
-        # lamba：16进制颜色转rgb
-        dg.basecolor = (lambda x: (int(x[1:3], 16), int(x[3:5], 16), int(x[5:], 16)))(request.POST['selectedcolor'])
-        dg.drawpic()
-        buffer = BytesIO()
-        dg.im.save(buffer, 'png')
-        buffer.seek(0)
-        return render(request, 'se/test.html', {'img': base64.encodebytes(buffer.read()).decode()})
-    return render(request, 'se/test.html')
+    with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', 'badapple.txt')) as f:
+        frametxts = f.read().split('\t')
+    return render(request, 'se/test.html', {'txt': frametxts[40:]})
