@@ -27,6 +27,28 @@ class Scores(models.Model):
         db_table = 'scores'
 
 
+class Airport(models.Model):
+    """
+    机场噪声
+    """
+    pri = models.AutoField(db_column='pri', primary_key=True)
+    position = models.CharField(db_column='点位', max_length=255, blank=True, null=True)  # 点位
+    acq_date = models.CharField(db_column='日期', max_length=255, blank=True, null=True)  # 日期
+    analylize = models.CharField(db_column='分析员', max_length=255, blank=True, null=True)  # 分析员
+    n1 = models.IntegerField(db_column='N1', blank=True, null=True)
+    n2 = models.IntegerField(db_column='N2', blank=True, null=True)
+    n3 = models.IntegerField(db_column='N3', blank=True, null=True)
+    nall = models.IntegerField(db_column='N总', blank=True, null=True)
+    lamaxpb = models.FloatField(db_column='Lamaxpb', blank=True, null=True)
+    lwecpn = models.FloatField(db_column='Lwecpn', blank=True, null=True)
+    bg = models.FloatField(db_column='背景', blank=True, null=True)  # 背景
+    cal_date = models.DateTimeField(db_column='记录时间', blank=True, null=True)  # 记录时间
+
+    class Meta:
+        managed = False
+        db_table = '机场_day_精密_2023'
+
+
 class Records(models.Model):
     """
     操作记录
@@ -69,6 +91,7 @@ class ScoresForm(forms.ModelForm):
     """
     分值表单
     """
+
     class Meta:
         model = Scores
         # exclude = ('multi', 'class0', 'department')
@@ -111,6 +134,7 @@ class ModelFormWithFileField(forms.ModelForm):
         # widgets = {
         #     'file': forms.ClearableFileInput(attrs={'multiple': True})
         # }
+
     # 新版本使用以下类实例实现多文件上传,
     file = MultipleFileField()
 # </--以上为上传文件多选相关-->

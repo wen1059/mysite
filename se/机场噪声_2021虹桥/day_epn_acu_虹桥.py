@@ -24,7 +24,7 @@ class Mysqldb:
                                    port=3306,
                                    user='root',
                                    passwd='WenLiang10072518',
-                                   database='airport_noise'
+                                   database='mysite'
                                    )
         self.curse = self.con.cursor()
 
@@ -403,7 +403,7 @@ def cal_oneday_week(walkpath):
     """
 
     def dw_date(file24name):
-        if f24n_re := re.search(r'(\d{1,2}.*)#(\d{2,4})(...)', file24name):
+        if f24n_re := re.search(r'(\d{1,2}.*)#(\d{2,4})(.*?)\.xls', file24name):
             dianwei, date, fx_name = f24n_re.group(1), f24n_re.group(2), f24n_re.group(3)
             if '精' in fx_name:
                 fx_name = fx_name.replace('精', '')

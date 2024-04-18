@@ -28,7 +28,12 @@
         <li class="nav-item"><a href="/se/opr/" class="nav-link {% if appname == 'officepasswdremove' %}active{% endif %}">office移除加密</a></li>
         <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>
         <li class="nav-item"><a href="/se/dp/" class="nav-link {% if appname == 'drawpic' %}active{% endif %}">绘图</a></li>
+        <li class="nav-item"><a href="/se/ap/" class="nav-link {% if appname == 'airport' %}active{% endif %}">机场噪声查询</a></li>
+
     </ul>
+</div>
+
+<div class="container mt-3">
 {% block base %}
 {% endblock base %}
 </div>

@@ -21,7 +21,7 @@ class Mysqldb:
                                    port=3306,
                                    user='root',
                                    passwd='WenLiang10072518',
-                                   database='airport_noise'
+                                   database='mysite'
                                    )
         self.curse = self.con.cursor()
 
@@ -47,7 +47,7 @@ def get_pos_and_date(filename):
     :param filename:xlsx名称
     :return:
     """
-    if f24n_re := re.search('(\d{1,2}.*#)(\d{2,4}.*)\.xls.', filename):
+    if f24n_re := re.search('(\d{1,2}.*#)(\d{2,4}).*\.xls', filename):
         position_, date_ = f24n_re.group(1), f24n_re.group(2)
     else:
         position_, date_ = '00', '0000',
@@ -127,7 +127,7 @@ def write_to_mysql(walkpath):
     db = Mysqldb()
     for file24 in findfiles(walkpath):
         insertdata = prepare_insdata(file24)
-        db.ins_to_tab('新标准计算', insertdata)
+        db.ins_to_tab('机场_新标准计算', insertdata)
     db.con.close()
 
 
@@ -143,5 +143,5 @@ def write_to_csv(walkpath):
 if __name__ == '__main__':
     while True:
         write_to_mysql(path_xlss := r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__')
-        # oldcal.run_oneday_week(path_xlss, 'day_精密_2023', 'week虹桥')
+        oldcal.run_oneday_week(path_xlss, '机场_day_精密_2023', 'week虹桥')
         time.sleep(3)

@@ -1,3 +1,4 @@
+import csv
 import os.path
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -7,7 +8,7 @@ from seui.models import *
 from django.contrib import messages
 from django.views.decorators.gzip import gzip_page
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 import shutil
 import json
@@ -52,10 +53,10 @@ def index_main(request):
     """
     主域名跳转到指定页面
     """
-    return HttpResponseRedirect('/se/ptc/')
+    return HttpResponseRedirect('/se/ap/')
 
 
-@gzip_page  # response采用gzip压缩后传到前端
+# @gzip_page  # response采用gzip压缩后传到前端
 def badapple(request):
     """
     播放字符画视频，
@@ -294,7 +295,47 @@ def drawpic(request):
     return render(request, 'se/drawpic.html', {'appname': 'drawpic'})
 
 
+def airport(request):
+    """
+    机场噪声结果查询界面
+    :param request:
+    :return:
+    """
+    if 'cleartab' in request.GET:  # 清空数据库
+        Airport.objects.all().delete()
+
+    if pri := request.GET.get('del'):  # 删除某一行
+        Airport.objects.filter(pri=pri).delete()
+
+    queryset = Airport.objects.all().order_by('-cal_date')
+    # 按条件筛选
+    if position := request.GET.get('position'):
+        queryset = queryset.filter(position__contains=position)
+    if acq_date := request.GET.get('acq_date'):
+        queryset = queryset.filter(acq_date__contains=acq_date)
+    if cal_date := request.GET.get('cal_date'):
+        queryset = queryset.filter(cal_date__range=[cal_date, (
+                datetime.strptime(cal_date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d')])
+
+    if 'export' in request.GET:  # 导出csv
+        response = HttpResponse(content_type='text/csv;charset=gbk',
+                                headers={"Content-Disposition": 'attachment; filename="export.csv"'},
+                                )
+        writer = csv.writer(response)
+        writer.writerow(
+            ['pri', '点位', '日期', '分析员', 'n1', 'n2', 'n3', 'n总', 'lamaxpb', 'lwecpn', '背景', '记录时间'])
+        writer.writerows(queryset.values_list())
+        return response
+    return render(request, 'se/airport.html', {'queryset': queryset, 'appname': 'airport'})
+
+
 def test(request):
-    with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', 'badapple.txt')) as f:
+    print(time.ctime())
+    randomlist = ['badapple',
+                  # '鸡你太美',
+                  ]
+    with open(r'C:\Users\Administrator\PycharmProjects\mysite\static\indextext\badapple.txt') as f:
         frametxts = f.read().split('\t')
-    return render(request, 'se/test.html', {'txt': frametxts[40:]})
+    txt = {'txt': frametxts[40:]}  # 跳过前40帧
+    print(time.ctime())
+    return JsonResponse(txt)  # 改为全部帧传到前端js控制播放

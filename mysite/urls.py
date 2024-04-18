@@ -20,9 +20,11 @@ from mysite import settings
 from django.views.static import serve
 
 urlpatterns = [
-    re_path('media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}, name='media'),
-    path('', views.index_main),
+    # re_path('media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}, name='media'),
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
     path('admin/', admin.site.urls),
+
+    path('', views.index_main),
     # path('blog/', include('blog.urls')),
     # path('llogs/', include('learning_logs.urls', namespace='learning_logs')),
     # path('wp/', include('work_performance.urls', namespace='work_performance')),
