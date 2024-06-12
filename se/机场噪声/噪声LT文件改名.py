@@ -1,5 +1,4 @@
 import os
-import subprocess
 import time
 import re
 
@@ -91,10 +90,11 @@ def rename_nobj(walkpath):
             elif (file[0:3] in ['1_3', 'NUM', 'STA'] and file[-4:] == '.AWA') or (file[0:3] == 'IND'):  # 删除其余文件
                 os.remove(os.path.join(root, file))
     print('finish')  # 控制台运行暂停查看状态
-    subprocess.run("pause")
+    input()
 
 
 if __name__ == '__main__':
+    print(os.getcwd())
     rename_nobj(
-        os.path.split(os.path.realpath(__file__))[0]
+        os.getcwd()
     )

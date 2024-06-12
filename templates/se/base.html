@@ -11,7 +11,11 @@
     <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
     <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
     <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <!-- 引入 jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- 引入 dataTables(分页排序查询) -->
+{#    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css"/>#}
+    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>
     <title>{% block title %}{% endblock title %}</title>
 </head>
 
@@ -19,7 +23,7 @@
 <div class="container mt-2">
     <!-- Nav pills -->
     <ul class="nav nav-pills justify-content-center" role="tablist">
-        <li class="nav-item"><a href="/se/" class="nav-link {% if appname == 'badapple' %}active{% endif %}">BadApple!!</a></li>
+        <li class="nav-item"><a href="/se/badapple" class="nav-link {% if appname == 'badapple' %}active{% endif %}">BadApple!!</a></li>
         <li class="nav-item"><a href="/se/wpscore" class="nav-link {% block active_wpscore %}{% endblock active_wpscore %}">绩效分值</a></li>
         <li class="nav-item"><a href="/se/wpcal/" class="nav-link {% block active_wpcal %}{% endblock active_wpcal %}">绩效计算</a></li>
         <li class="nav-item"><a href="/se/ptc/" class="nav-link {% if appname == 'pdftocsv' %}active{% endif %}">pdf转csv</a></li>
@@ -28,12 +32,12 @@
         <li class="nav-item"><a href="/se/opr/" class="nav-link {% if appname == 'officepasswdremove' %}active{% endif %}">office移除加密</a></li>
         <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>
         <li class="nav-item"><a href="/se/dp/" class="nav-link {% if appname == 'drawpic' %}active{% endif %}">绘图</a></li>
-        <li class="nav-item"><a href="/se/ap/" class="nav-link {% if appname == 'airport' %}active{% endif %}">机场噪声查询</a></li>
+        <li class="nav-item"><a href="/se/ap/" class="nav-link {% if appname == 'airport' %}active{% endif %}">机场噪声</a></li>
 
     </ul>
 </div>
 
-<div class="container mt-3">
+<div class="container mt-2">
 {% block base %}
 {% endblock base %}
 </div>

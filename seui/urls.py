@@ -6,7 +6,7 @@ from seui import views
 app_name = 'seui'
 urlpatterns = [
     path('test/', views.test, name='test'),
-    path('', views.badapple, name='badapple'),
+    path('badapple/', views.badapple, name='badapple'),
     path('wpscore/', views.wpscore, name='wpscore'),  # 绩效分值
     path('wpcal/', views.wpcal, name='wpcal'),  # 绩效计算
     path('ptc/', views.ptc, name='ptc'),  # pdf转csv

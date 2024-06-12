@@ -2,6 +2,8 @@
 # date: 2022/7/21
 import os
 from win32com.client import constants, gencache
+import sys
+from glob import glob
 
 
 def words2pdf(words: list[str], rename=False):
@@ -52,6 +54,7 @@ def findfiles(path):
 
 
 if __name__ == '__main__':
-    ofs = findfiles(r"C:\Users\Administrator\Desktop\学校相关\二年级\2A期末练习")
+    # ofs = findfiles(r"C:\Users\Administrator\Desktop\学校相关\二年级\2A期末练习")
+    ofs = findfiles(os.getcwd())
     words2pdf(ofs['words'])
     excels2pdf(ofs['excels'])

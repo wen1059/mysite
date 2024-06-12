@@ -23,7 +23,7 @@
       <excludeFolder url="file://$MODULE_DIR$/single_useless" />
       <excludeFolder url="file://$MODULE_DIR$/wx130a66d2e08e5e31" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.12" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

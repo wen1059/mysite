@@ -17,7 +17,7 @@ def read_dd(file: str | os.PathLike) -> pd.DataFrame:
     :return:
     """
     df = pd.read_excel(file, header=2, usecols='a,i:k')  # 读取excel，保留aijk列
-    df = df[df['打卡结果'].isin(['正常', '外勤'])]  # 筛选保留打卡结果['正常', '外勤']行
+    df = df[df['打卡结果'].isin(['正常', '外勤', '正常\n外勤'])]  # 筛选保留打卡结果['正常', '外勤']行
     df['打卡时间'] = pd.to_datetime(df['打卡时间'])  # 时间列转为datetime格式
     df['打卡日期'] = df['打卡时间'].dt.strftime('%Y-%m-%d')  # 打卡时间拆分为y-m-d和time
     df['打卡时间'] = df['打卡时间'].dt.strftime('%H:%M')
@@ -25,7 +25,7 @@ def read_dd(file: str | os.PathLike) -> pd.DataFrame:
     # df.apply中lamdba后面的x是Series，axis=1表示x是每一行的Series，这个Series的Index是column名。
     # Series.apply中lamdba后面的x是单个元素，没有axis参数。
     df['打卡时间'] = df[['打卡时间', '打卡结果', '打卡地址']].apply(
-        lambda x: ''.join(x[['打卡时间', '打卡地址']]) if x['打卡结果'] == '外勤' else x['打卡时间'], axis=1)
+        lambda x: ''.join(x[['打卡时间', '打卡地址']]) if '外勤' in x['打卡结果'] else x['打卡时间'], axis=1)
     df = df[['打卡日期', '姓名', '打卡时间']]  # 保留这三列
     # df转为新的数据结构{date:{name:time, ...}, ...}
     dict_temp = {}
@@ -57,8 +57,8 @@ def write_dd(df: pd.DataFrame, file: str | os.PathLike) -> None:
 
 if __name__ == '__main__':
     # file = sys.argv[1]
-    file = r"C:\Users\Administrator\Desktop\考勤匹配\副本上海市环境监测技术装备有限公司_原始记录表_20230905-20230918.xlsx"
+    file = r"C:\Users\Administrator\Desktop\考勤匹配\上海市环境监测技术装备有限公司_原始记录表_20240501-20240531.xlsx"
     df = read_dd(file)
     write_dd(df, file)
     print('完成')
-    os.system('pause')
+    input()

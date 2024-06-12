@@ -56,7 +56,7 @@ def index_main(request):
     return HttpResponseRedirect('/se/ap/')
 
 
-# @gzip_page  # response采用gzip压缩后传到前端
+@gzip_page  # response采用gzip压缩后传到前端
 def badapple(request):
     """
     播放字符画视频，
@@ -323,7 +323,7 @@ def airport(request):
                                 )
         writer = csv.writer(response)
         writer.writerow(
-            ['pri', '点位', '日期', '分析员', 'n1', 'n2', 'n3', 'n总', 'lamaxpb', 'lwecpn', '背景', '记录时间'])
+            ['pri', '点位', '日期', '分析员', 'n1', 'n2', 'n3', 'n总', 'lepnb', 'lwecpn', '背景', '记录时间'])
         writer.writerows(queryset.values_list())
         return response
     return render(request, 'se/airport.html', {'queryset': queryset, 'appname': 'airport'})

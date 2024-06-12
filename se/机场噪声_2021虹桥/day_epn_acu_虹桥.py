@@ -150,7 +150,7 @@ def count_hb(sht):
     hb_20 = hb_all.copy()
     hour = None
     regx = re.compile(r' (\d{1,2}):..')
-    for i in range(3, 2080):
+    for i in range(3, 2580):
         if sht.range('a{}'.format(i)).value == '监测开始时间':
             hour_rex = regx.search(str(sht.range('a{}'.format(i + 1)).value))
             hour = int(hour_rex.group(1))
@@ -182,7 +182,7 @@ def gen_list(sht):
     """
     bg, eli = None, None  # eli是剔除项，Ture的时候是剔除
     # mdd = re.compile(r'.+-(.+)')  # 航路取目的地值，按需修改
-    for i in range(3, 2080):  # 一天的行数
+    for i in range(3, 2580):  # 一天的行数
         # for i in range(3, 14560):  # 7天的行数
         jx = sht.range('j{}'.format(i)).value
         if jx is None:  # 以机型为识别，跳过没有数值的行。
@@ -403,8 +403,8 @@ def cal_oneday_week(walkpath):
     """
 
     def dw_date(file24name):
-        if f24n_re := re.search(r'(\d{1,2}.*)#(\d{2,4})(.*?)\.xls', file24name):
-            dianwei, date, fx_name = f24n_re.group(1), f24n_re.group(2), f24n_re.group(3)
+        if f24n_re := re.search(r'(.*?)(\d{1,2}.*)#(\d{2,4})(.*?)\.xls', file24name):
+            dianwei, date, fx_name = f24n_re.group(2), f24n_re.group(3), f24n_re.group(1) + f24n_re.group(4)
             if '精' in fx_name:
                 fx_name = fx_name.replace('精', '')
         else:
@@ -534,6 +534,9 @@ def run_oneday_week(walkpath, tab_day, tab_week):
 
 if __name__ == '__main__':
     while True:
-        run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__', 'day_精密_2023',
-                        'week虹桥')
-        time.sleep(3)
+        try:
+            run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__投递到这里自动计算__', '机场_day_精密_2023',
+                            'week虹桥')
+            time.sleep(3)
+        except Exception as e:
+            traceback.print_exc()

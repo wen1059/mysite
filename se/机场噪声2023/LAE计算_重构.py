@@ -47,7 +47,7 @@ def get_pos_and_date(filename):
     :param filename:xlsx名称
     :return:
     """
-    if f24n_re := re.search('(\d{1,2}.*#)(\d{2,4}).*\.xls', filename):
+    if f24n_re := re.search(r'(\d{1,2}.*#)(\d{2,4}).*\.xls', filename):
         position_, date_ = f24n_re.group(1), f24n_re.group(2)
     else:
         position_, date_ = '00', '0000',
@@ -67,15 +67,17 @@ def readfile24(filepath: str) -> (pd.DataFrame,):
         :param df: 读取出的原始df
         :return:
         """
-        df.loc[:, 'startTime'] = df['startTime'].apply(lambda x: datetime.datetime.time(x))  # datetime转成time用于判断昼夜。
+        df['startTime'] = df['startTime'].astype('datetime64[ns]').dt.time  # datetime转成time用于判断昼夜。
         df_day = df[(datetime.time(6, 0, 0) <= df['startTime']) & (df['startTime'] < datetime.time(22, 0, 0))]
         df_night = pd.concat([df, df_day]).drop_duplicates(keep=False)
         return df_day, df_night
 
-    df_org = pd.read_excel(filepath, header=5)
-    df_org = df_org[df_org['LAE(10)'] != 'LAE(10)']  # 去除每个小时表格的表头。
-    df1 = df_org.dropna(subset='LAE(10)')  # 仅保留LAE(10)有值的行，df1用于数据计算。
-    df2 = df_org.dropna(subset='机型').ffill()  # 仅保留有航班的行，df2用于统计原始架次，对计算无影响。.ffill()向上填充空值.
+    df_org = pd.read_excel(filepath, header=0)
+    df_org.columns = df_org.iloc[4]  # 故意的，原先header=5，但这样会舍掉0点的时间段行，后续没法ffill，所以全读出再手动设置columns。
+    df_org = df_org[~df_org['startTime'].isin(['有效事件数据统计', 'startTime'])]  # 去除这两行（包含每个小时表格的表头行），~表示isin取反。
+    df_org['startTime'] = df_org['startTime'].ffill()  # 向上填充时间列，为了统计df2的原始架次
+    df1 = df_org.dropna(subset='LAE(10)').copy()  # 仅保留LAE(10)有值的行，上一步已去除表头，所以剩下的都是数据行和空行，df1用于数据计算。
+    df2 = df_org.dropna(subset='机型').copy()  # 仅保留有航班的行，df2用于统计原始架次，对计算无影响。
     return splt_day_and_night(df1) + splt_day_and_night(df2)
 
 
@@ -142,6 +144,7 @@ def write_to_csv(walkpath):
 
 if __name__ == '__main__':
     while True:
-        write_to_mysql(path_xlss := r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__')
-        oldcal.run_oneday_week(path_xlss, '机场_day_精密_2023', 'week虹桥')
-        time.sleep(3)
+        write_to_mysql(r'C:\Users\Administrator\Desktop\新建文件夹')
+        # write_to_mysql(path_xlss := r'\\10.1.78.254\环装-实验室\实验室共享\2023鸡场\__投递到这里自动计算__')
+        # oldcal.run_oneday_week(path_xlss, '机场_day_精密_2023', 'week虹桥')
+        time.sleep(100)

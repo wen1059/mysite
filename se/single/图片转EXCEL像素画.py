@@ -92,5 +92,5 @@ if __name__ == '__main__':
         img = sys.argv[1]
     else:
         # img = os.path.split(os.path.realpath(__file__))[0]
-        img = r"C:\Users\Administrator\PycharmProjects\mysite\static\img\Hornet_Idle.png"
-    setcolor(img, 80)
+        img = r"C:\Users\Administrator\Pictures\111.png"
+    setcolor(img, 30)
