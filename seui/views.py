@@ -168,12 +168,12 @@ class UploadHandle:
         self.new_ext = '.pdf'
 
     def opr_handle(self, request):
-        from se.single import excel去加密 as epr
-        from se.single import word去加密 as wpr
         if self.destination.lower().endswith(('.xls', '.xlsx')):
+            from se.single import excel去加密 as epr
             epr.run(self.destination)
             self.new_ext = '.xlsx'
         elif self.destination.lower().endswith(('.doc', '.docx')):
+            from se.single import word去加密 as wpr
             wpr.run(self.destination)
             self.new_ext = '.docx'
 
@@ -191,9 +191,7 @@ def ptc(request):
     pdf转csv页面
     """
     handle = UploadHandle('pdftocsv')
-    if request.method == 'GET':
-        return render(request, 'se/base_upload.html', handle.content)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         # pdf转csv提交按钮
         # 已合并至ptc()，先前作为提交按钮的view函数，现在提交按钮也定位到ptc(), 根据request.method判断。
         handle.uploadfile(request)
@@ -202,6 +200,7 @@ def ptc(request):
         # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
         # messages.info(request, content)
         return HttpResponseRedirect('/se/ptc/')
+    return render(request, 'se/base_upload.html', handle.content)
 
 
 def ptw(request):
@@ -209,13 +208,12 @@ def ptw(request):
     pdf转word页面
     """
     handle = UploadHandle('pdftoword')
-    if request.method == 'GET':
-        return render(request, 'se/base_upload.html', handle.content)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         handle.uploadfile(request)
         handle.ptw_handle(request)
         handle.create_records(request)
         return HttpResponseRedirect('/se/ptw/')
+    return render(request, 'se/base_upload.html', handle.content)
 
 
 def ppr(request):
@@ -225,13 +223,12 @@ def ppr(request):
     :return:
     """
     handle = UploadHandle('pdfpasswdremove')
-    if request.method == 'GET':
-        return render(request, 'se/base_upload.html', handle.content)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         handle.uploadfile(request)
         handle.ppr_handle(request)
         handle.create_records(request)
         return HttpResponseRedirect('/se/ppr/')
+    return render(request, 'se/base_upload.html', handle.content)
 
 
 def opr(request):
@@ -241,13 +238,12 @@ def opr(request):
     :return:
     """
     handle = UploadHandle('officepasswdremove')
-    if request.method == 'GET':
-        return render(request, 'se/base_upload.html', handle.content)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         handle.uploadfile(request)
         handle.opr_handle(request)
         handle.create_records(request)
         return HttpResponseRedirect('/se/opr/')
+    return render(request, 'se/base_upload.html', handle.content)
 
 
 def sl(request):

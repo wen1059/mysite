@@ -30,6 +30,24 @@ def sendmail(text):
     message['Subject'] = Header('ip-' + time.ctime(), 'utf-8')  # 邮件主题
     smtpObj.sendmail('wenliang1059@126.com', ['wenliang1059@126.com', ], message.as_string())  # 发送(发件人，收件人列表，邮件信息)
 
+    # 添加附件
+    # message = MIMEMultipart()
+    # message.attach(MIMEText('dear ,我发送一个附件给你清注意查收', 'plain', 'utf-8'))
+    # # 邮件主题
+    # subject = 'python测试附件'
+    # message['Subject'] = subject
+    # # 发送方信息
+    # message['From'] = sender
+    # # 接受方信息
+    # message['To'] = receivers[0]
+    #
+    # att = MIMEText(open('test.txt', 'rb').read(), 'base64', 'utf-8')
+    # att["Content-Type"] = 'application/octet-stream'
+    #
+    # # 这里的filename可以任意写，写什么名字，邮件中显示什么名字,# 写中文乱了
+    # att["Content-Disposition"] = 'attachment; filename="test.txt"'
+    # message.attach(att)
+
 
 if __name__ == '__main__':
     ip = ''
