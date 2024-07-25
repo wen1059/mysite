@@ -31,10 +31,35 @@
 
 
 from ftplib import FTP
+import os
+import sys
+
+try:
+    import pyperclip
+except ImportError:
+    os.system('pip install pyperclip')
+    import pyperclip
 
 ftp = FTP()
-ftp.connect('10.1.210.117')
-ftp.login(user='1', passwd='1')
-with open(r"C:\Users\Administrator\Desktop\BOOTICEx64_2016.06.17_v1.3.4.0.exe", 'rb') as f:
-    ftp.storbinary('STOR 1.exe', f)
+ftp.encoding = 'gbk'
+ftp.connect('10.1.210.119')
+ftp.login(user='', passwd='')
+instrumentname = os.path.split(__file__)[1].split('.')[0]
+# instrumentname = 'SEMTEC_212'
+batch = pyperclip.paste()
+files = sys.argv[1:]
+
+ftp.cwd(instrumentname)
+# 删除旧批文件夹
+for oldbatch in ftp.nlst():
+    try:
+        ftp.rmd(oldbatch)
+    except Exception:
+        ftp.delete(oldbatch)
+
+# 建立新批文件夹
+ftp.mkd(batch)
+for file in files:
+    with open(file, 'rb') as f:
+        ftp.storbinary(rf'STOR .\{batch}\{os.path.split(file)[-1]}', f)
 ftp.quit()
