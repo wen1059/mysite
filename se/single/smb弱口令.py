@@ -13,7 +13,7 @@ def genpwd():
     防止多进程爆内存，分批输出
     :return:list
     """
-    yield ['WenLiang10072518']
+    yield ['']
         # 生成4位数
     yield [f'{i:04}' for i in range(10 ** 4)]
     # 生成6位数

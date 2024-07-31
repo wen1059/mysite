@@ -20,7 +20,7 @@ class Mysqldb:
         self.con = pymysql.connect(host='localhost',
                                    port=3306,
                                    user='root',
-                                   passwd='WenLiang10072518',
+                                   passwd='123456',
                                    database='mysite'
                                    )
         self.curse = self.con.cursor()

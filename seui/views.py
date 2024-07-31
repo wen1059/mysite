@@ -53,7 +53,7 @@ def index_main(request):
     """
     主域名跳转到指定页面
     """
-    return HttpResponseRedirect('/se/ap/')
+    return HttpResponseRedirect('/se/badapple/')
 
 
 @gzip_page  # response采用gzip压缩后传到前端
