@@ -34,9 +34,9 @@ class Mysqldb:
         :return:
         """
         sql = f'''INSERT INTO {tab} 
-            ( pri, 点位, 日期,  Ldn, Nd_有效, Nn_有效, Nd_总, Nn_总, 记录时间 ) 
+            ( pri, 点位, 日期,  Ldn, Nd_有效, Nn_有效, Nd_总, Nn_总, 是否有效, 记录时间 ) 
             VALUES 
-            (NULL, '{values[0]}', '{values[1]}', '{values[2]}', '{values[3]}', '{values[4]}', '{values[5]}', '{values[6]}', now())'''
+            (NULL, '{values[0]}', '{values[1]}', '{values[2]}', '{values[3]}', '{values[4]}', '{values[5]}', '{values[6]}', '{values[7]}', now())'''
         self.curse.execute(sql)
         self.con.commit()
 
@@ -106,7 +106,8 @@ def prepare_insdata(filepath: str) -> list[str | float]:
     rst_ldn = cal_ldn(df_cal_day, df_cal_night)
     nd_effective, nn_effective = df_cal_day.shape[0], df_cal_night.shape[0]
     nd_all, nn_all = df_allflt_day.shape[0], df_allflt_night.shape[0]
-    insdata = [pos, dat, rst_ldn, nd_effective, nn_effective, nd_all, nn_all]
+    is_useful = 1 if nd_effective / nd_all >= 0.9 and nn_effective / nn_all >= 0.9 else 0  # 90%有效性判断
+    insdata = [pos, dat, rst_ldn, nd_effective, nn_effective, nd_all, nn_all] + [is_useful]
     return insdata
 
 

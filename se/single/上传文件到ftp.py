@@ -31,6 +31,7 @@
 
 
 from ftplib import FTP
+from uuid import uuid4
 import os
 import sys
 
@@ -61,5 +62,5 @@ for oldbatch in ftp.nlst():
 ftp.mkd(batch)
 for file in files:
     with open(file, 'rb') as f:
-        ftp.storbinary(rf'STOR .\{batch}\{os.path.split(file)[-1]}', f)
+        ftp.storbinary(rf'STOR .\{batch}\{str(uuid4()) + os.path.split(file)[-1]}', f)
 ftp.quit()
