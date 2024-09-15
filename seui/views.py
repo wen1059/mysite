@@ -297,7 +297,7 @@ def airport(request):
     :param request:
     :return:
     """
-    if 'cleartab' in request.GET:  # 清空数据库
+    if 'cleartab' in request.POST:  # 清空数据库
         Airport.objects.all().delete()
 
     if pri := request.GET.get('del'):  # 删除某一行

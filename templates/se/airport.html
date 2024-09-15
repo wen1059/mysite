@@ -1,19 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+
+    <meta charset="UTF-8">
+    <!--为了让 Bootstrap 开发的网站对移动设备友好，确保适当的绘制和触屏缩放，需要在网页的 head 之中添加 viewport meta 标签-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 新 Bootstrap5 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
+    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <!-- 引入 jQuery -->
+{#    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>#}
+    <!-- 引入 dataTables(分页排序查询) -->
+{#    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css"/>#}
+{#    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>#}
+</head>
+
 {#{% extends 'se/base.html' %}#}
 {#{% block title %}机场噪声查询{% endblock title %}#}
 {#{% block base %}#}
 {##}
 {#    <div class="container mt-2">#}
 {#        <br>#}
-        <form method="get">
+        <form method="post">
+        {% csrf_token %}
 {#            <label>点位： <input type="text" name="position"> </label>#}
 {#            <label>日期： <input type="text" name="acq_date"> </label>#}
 {#            <label>记录时间：<input type="date" name="cal_date"> </label>#}
 {#            <button type="submit" name="filter" class="btn btn-outline-primary">筛选</button>#}
 {#            <button type="submit" name="export" class="btn btn-outline-success">导出csv</button>#}
             <button type="submit" name="cleartab" class="btn btn-outline-danger"
-                    onclick="return confirm('此操作会删除所有后台数据，您确定要继续吗？')">清空数据库
+                    onclick="return confirm('确定？')">清空数据
             </button>
-        </form>
+
+<div class="text-center">
+        <button class="btn btn-outline-primary" onclick="window.location.href='/'" >刷新</button>
+</div>
+                </form>
 {#    </div>#}
 {#    <div class="container mt-2">#}
         <table class="table table-hover table-bordered text-center" id="tabap">
@@ -21,8 +44,8 @@
 {#            <tr>#}
 {#                <th>序号</th>#}
                 <th>点位</th>
-                <th>日期</th>
-                <th>分析员</th>
+{#                <th>日期</th>#}
+{#                <th>分析员</th>#}
                 <th>N<sub>1</sub></th>
                 <th>N<sub>2</sub></th>
                 <th>N<sub>3</sub></th>
@@ -30,7 +53,7 @@
                 <th>L<sup>—</sup><sub>EPN</sub></th>
                 <th>L<sub>WECPN</sub></th>
 {#                <th>背景</th>#}
-{#                <th>记录时间</th>#}
+                <th>记录时间</th>
 {#                <th>操作</th>#}
 {#            </tr>#}
 {#            </thead>#}
@@ -38,17 +61,17 @@
             {% for item in queryset %}
                 <tr>
 {#                    <td>{{ item.pri }}</td>#}
-                    <td class="text-primary">{{ item.position }}</td>
-                    <td class="text-primary">{{ item.acq_date }}</td>
-                    <td>{{ item.analylize }}</td>
+                    <td>{{ item.position }}</td>
+{#                    <td class="text-primary">{{ item.acq_date }}</td>#}
+{#                    <td>{{ item.analylize }}</td>#}
                     <td>{{ item.n1 }}</td>
                     <td>{{ item.n2 }}</td>
                     <td>{{ item.n3 }}</td>
                     <td>{{ item.nall }}</td>
                     <td>{{ item.lamaxpb }}</td>
-                    <td class="text-primary">{{ item.lwecpn }}</td>
+                    <td>{{ item.lwecpn }}</td>
 {#                    <td>{{ item.bg }}</td>#}
-{#                    <td>{{ item.cal_date }}</td>#}
+                    <td>{{ item.cal_date }}</td>
 {#                    <td>#}
 {#                        <form method="get">#}
 {#                            <button type="submit" class="btn btn btn-outline-warning btn-custom-xs" name="del"#}
@@ -60,7 +83,7 @@
             {% endfor %}
             </tbody>
         </table>
-    </div>
+{#    </div>#}
 {#    <style>#}
 {#        .btn-custom-xs {#}
 {#            padding: 0.125rem 0.125rem;#}

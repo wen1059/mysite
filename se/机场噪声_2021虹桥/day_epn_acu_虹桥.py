@@ -8,12 +8,16 @@
 import math
 import os
 import re
+
+import numpy as np
 import pymysql
-import xlwings
+import pandas as pd
+# import xlwings #改用pandas读取
 import time
 import shutil
 import traceback
 from decimal import Decimal
+from xlwings.main import Book, Sheet
 
 
 class Mysqldb:
@@ -111,29 +115,33 @@ def yieldsht(walkpath):
 
     for root, _, files in os.walk(walkpath):
         if files:  # 为了自动计算时不让excel在后台频繁打开关闭，增加了if条件。
-            app_24 = xlwings.App(visible=False, add_book=False)  # 待计算文件
+            # app_24 = xlwings.App(visible=False, add_book=False)  # 待计算文件
             for filexlsx in files:
                 if filexlsx[-5:-1] != '.xls' or '~$' in filexlsx:
                     continue
                 file24path = os.path.join(root, filexlsx)
-                file24 = app_24.books.open(file24path)  # 24小时文件
+                # file24: Book = app_24.books.open(file24path)  # 24小时文件
                 # shtcount = file24.sheets.count  # sheet数量
                 # for sc in range(shtcount):
                 #     sht = file24.sheets[sc]  # sht：其中一天的sheet
-                yield file24.name, file24.sheets[0]
-                file24.close()
+                # sht0: Sheet = file24.sheets[0]
+                df = pd.read_excel(file24path, header=None)
+                df = df.replace(np.NAN, None)
+                values = df.values.tolist()
+                yield filexlsx, values  # 原来返回sht，现在先读出来（二维list）再返回
+                # file24.close()
                 # shutil.copy(file24path, r"C:\Users\Administrator\Desktop\虹桥噪声桌面\计算备份\{}".format(
                 #     time.strftime('%H%M%S', time.localtime(time.time())) + '_' + filexlsx))  # 新增备份功能
             for filexlsx in files:
                 os.remove(os.path.join(root, filexlsx))
-            app_24.quit()
+            # app_24.quit()
 
 
-def count_hb(sht):
+def count_hb(values):
     """
     统计3个时间段航班数，更新方法，由行数判断改成根据时间判断
     04.17更新，同时统计所有的和>20db的
-    :param sht:
+    :param values:原来是yieldsht（）返回的sheet，现在改为返回values，变量名没改，增加读取速度，后面gen_list（）同理
     :return:
     """
 
@@ -150,18 +158,22 @@ def count_hb(sht):
     hb_20 = hb_all.copy()
     hour = None
     regx = re.compile(r' (\d{1,2}):..')
-    for i in range(3, 2580):
-        if sht.range('a{}'.format(i)).value == '监测开始时间':
-            hour_rex = regx.search(str(sht.range('a{}'.format(i + 1)).value))
+    v = values[3][13]
+    bg = float(v) if v else 0
+    for line in values:
+        if line[0] == '监测开始时间':
+            hour = 'pre'  # 准备下一列读取时间
+            continue
+        if hour == 'pre':
+            hour_rex = regx.search(str(line[0]))
             hour = int(hour_rex.group(1))
             # print(hour)
-        if sht.range('j{}'.format(i)).value in [None, '机型']:  # 值对应机型列,如果有事件，统计架次
+        if line[9] in [None, '机型']:  # 值对应机型列,如果有事件，统计架次
             continue
+
         count_inner(hb_all)  # 统计所有,<20db和温湿度剔除项都统计在内
         # ---------4.17更新，统计lamax>20的，即在[lamaxp_all_day]中的航班的架次
-        v = sht.range('n4').value
-        bg = float(v) if v else 0
-        maxla = sht.range('h{}'.format(i)).value
+        maxla = line[7]
         if maxla is None:  # none表示背景干扰，赋值100以满足maxla - bg > 20，仅表示参与统计，此函数不影响数值计算
             maxla = 100
         # td = sht.range('e{}'.format(i)).value
@@ -173,33 +185,35 @@ def count_hb(sht):
     return hb_all, hb_20, hb_10
 
 
-def gen_list(sht):
+def gen_list(values):
     """
     从excel读取生成（maxla,lepn,td,机型，航路，背景,是否剔除）
     由机型判断，生成有机型的行
-    :param sht:
+    :param values:
     :return:
     """
     bg, eli = None, None  # eli是剔除项，Ture的时候是剔除
+    v = values[3][13]
+    bg = float(v) if v else 0
     # mdd = re.compile(r'.+-(.+)')  # 航路取目的地值，按需修改
-    for i in range(3, 2580):  # 一天的行数
+    for line in values:  # 一天的行数
         # for i in range(3, 14560):  # 7天的行数
-        jx = sht.range('j{}'.format(i)).value
-        if jx is None:  # 以机型为识别，跳过没有数值的行。
+        jx = line[9]
+        if jx in [None, '机型']:  # 以机型为识别，跳过没有数值的行。
             continue
-        if jx == '机型':  # 更新背景值，背景值在k列“机型”字段的上两行
-            v = sht.range('n4').value
-            bg = float(v) if v else 0
-            eli = sht.range('p{}'.format(i - 2)).value
-            continue
+        # if jx == '机型':  # 更新背景值，背景值在k列“机型”字段的上两行
+        #     v = values.range('n4').value
+        #     bg = float(v) if v else 0
+        #     eli = values.range('p{}'.format(i - 2)).value
+        #     continue
         if str(jx).isdigit():
             jx = str(int(jx))  # 机型转为整数字符串,因为xlwings读出来的数字是浮点数
-        hl = sht.range('n{}'.format(i)).value
+        hl = line[13]
         # hl = mdd.search(hl).group(1) #航路改为英文字母，此条不再有用
-        lepn = sht.range('d{}'.format(i)).value
-        maxla = sht.range('h{}'.format(i)).value
-        td = sht.range('e{}'.format(i)).value
-        qj = sht.range('k{}'.format(i)).value  # 新加起降
+        lepn = line[3]
+        maxla = line[7]
+        td = line[4]
+        qj = line[10]  # 新加起降
         yield maxla, lepn, td, jx, hl, bg, eli, qj
 
 
@@ -409,6 +423,7 @@ def cal_oneday_week(walkpath):
                 fx_name = fx_name.replace('精', '')
         else:
             dianwei, date, fx_name = '00', '0000', '000'
+        dianwei = file24name
         return dianwei, date, fx_name
 
     lamaxp_all_week_20 = []
@@ -423,8 +438,8 @@ def cal_oneday_week(walkpath):
         print(time.ctime(), file24name)
         try:
             dianwei, date, fx_name = dw_date(file24name)
-            v = sht.range('n4').value
-            bg = float(v) if v else 0
+            # v = sht.range('n4').value
+            bg = 0  # float(v) if v else 0
             dic_ = gendic(sht)
             hb_ = count_hb(sht)
             # ---以下是>20db的日计算
@@ -446,7 +461,7 @@ def cal_oneday_week(walkpath):
             hb_day_all = hb_[0]
             lwecpn_day_all = cal_lwecpn(lamaxpb_day_all, hb_day_all)
             # lwecpn_day_n20 = cal_lwecpn(lamaxpb_day_20, hb_day_all)  # 04.23新增用总航班和20db_lepn计算
-            sumresult_day = (dianwei + '#', date, fx_name,
+            sumresult_day = (dianwei, date, fx_name,
                              hb_day_all['day'], hb_day_all['dust'], hb_day_all['night'], sum(hb_day_all.values()),
                              lamaxpb_day_all, lwecpn_day_all,
                              hb_day_10['day'], hb_day_10['dust'], hb_day_10['night'], sum(hb_day_10.values()),
@@ -454,41 +469,42 @@ def cal_oneday_week(walkpath):
                              hb_day_20['day'], hb_day_20['dust'], hb_day_20['night'], sum(hb_day_20.values()),
                              lamaxpb_day_20, lwecpn_day_20,
                              bg)
+            # print(sumresult_day)
             yield sumresult_day
-            lamaxp_all_week_20.extend(lamaxp_all_day_20)  # 周计算新加语句
-            for i in hb_day_20:  # 周计算新加语句
-                hb_week_20[i] += hb_day_20[i] / 7  # 周计算新加语句
-            lamaxp_all_week_10.extend(lamaxp_all_day_10)  # 周计算新加语句
-            for i in hb_day_10:  # 周计算新加语句
-                hb_week_10[i] += hb_day_10[i] / 7  # 周计算新加语句
-            lamaxp_all_week_all.extend(lamaxp_all_day_all)  # 周计算新加语句
-            for i in hb_day_all:  # 周计算新加语句
-                hb_week_all[i] += hb_day_all[i] / 7  # 周计算新加语句
+            # lamaxp_all_week_20.extend(lamaxp_all_day_20)  # 周计算新加语句
+            # for i in hb_day_20:  # 周计算新加语句
+            #     hb_week_20[i] += hb_day_20[i] / 7  # 周计算新加语句
+            # lamaxp_all_week_10.extend(lamaxp_all_day_10)  # 周计算新加语句
+            # for i in hb_day_10:  # 周计算新加语句
+            #     hb_week_10[i] += hb_day_10[i] / 7  # 周计算新加语句
+            # lamaxp_all_week_all.extend(lamaxp_all_day_all)  # 周计算新加语句
+            # for i in hb_day_all:  # 周计算新加语句
+            #     hb_week_all[i] += hb_day_all[i] / 7  # 周计算新加语句
         except Exception as e:
             print(time.ctime(), file24name)
             traceback.print_exc()
             # 根据表做调整，不然写不到表里
-            yield (dianwei + '#', date, fx_name) + (-1,) * 25
-    # ------------------
-    # ---以下是>20db的周计算
-    lamaxpb_week_20 = cal_bar(lamaxp_all_week_20)
-    lwecpn_week_20 = cal_lwecpn(lamaxpb_week_20, hb_week_20)
-    # ---以下是>10db的周计算
-    lamaxpb_week_10 = cal_bar(lamaxp_all_week_10)
-    lwecpn_week_10 = cal_lwecpn(lamaxpb_week_10, hb_week_10)
-    # ---以下是全部的周计算
-    lamaxpb_week_all = cal_bar(lamaxp_all_week_all)
-    lwecpn_week_all = cal_lwecpn(lamaxpb_week_all, hb_week_all)
-    # lwecpn_week_n20 = cal_lwecpn(lamaxpb_week_20, hb_week_all)  # # 04.23新增用总航班和20db_lepn计算
-    sumresult_week = (dianwei + '#', '周平均', -1,
-                      hb_week_all['day'], hb_week_all['dust'], hb_week_all['night'], sum(hb_week_all.values()),
-                      lamaxpb_week_all, lwecpn_week_all,
-                      hb_week_10['day'], hb_week_10['dust'], hb_week_10['night'], sum(hb_week_10.values()),
-                      lamaxpb_week_10, lwecpn_week_10,
-                      hb_week_20['day'], hb_week_20['dust'], hb_week_20['night'], sum(hb_week_20.values()),
-                      lamaxpb_week_20, lwecpn_week_20,
-                      -1)
-    yield sumresult_week
+            yield (dianwei, date, fx_name) + (-1,) * 25
+    # # ------------------
+    # # ---以下是>20db的周计算
+    # lamaxpb_week_20 = cal_bar(lamaxp_all_week_20)
+    # lwecpn_week_20 = cal_lwecpn(lamaxpb_week_20, hb_week_20)
+    # # ---以下是>10db的周计算
+    # lamaxpb_week_10 = cal_bar(lamaxp_all_week_10)
+    # lwecpn_week_10 = cal_lwecpn(lamaxpb_week_10, hb_week_10)
+    # # ---以下是全部的周计算
+    # lamaxpb_week_all = cal_bar(lamaxp_all_week_all)
+    # lwecpn_week_all = cal_lwecpn(lamaxpb_week_all, hb_week_all)
+    # # lwecpn_week_n20 = cal_lwecpn(lamaxpb_week_20, hb_week_all)  # # 04.23新增用总航班和20db_lepn计算
+    # sumresult_week = (dianwei + '#', '周平均', -1,
+    #                   hb_week_all['day'], hb_week_all['dust'], hb_week_all['night'], sum(hb_week_all.values()),
+    #                   lamaxpb_week_all, lwecpn_week_all,
+    #                   hb_week_10['day'], hb_week_10['dust'], hb_week_10['night'], sum(hb_week_10.values()),
+    #                   lamaxpb_week_10, lwecpn_week_10,
+    #                   hb_week_20['day'], hb_week_20['dust'], hb_week_20['night'], sum(hb_week_20.values()),
+    #                   lamaxpb_week_20, lwecpn_week_20,
+    #                   -1)
+    # yield sumresult_week
 
 
 # def run_oneday_week(walkpath, tab_day, tab_week):
@@ -525,6 +541,7 @@ def run_oneday_week(walkpath, tab_day, tab_week):
         # if weekwalkpath == walkpath:
         #     continue
         for sumres in cal_oneday_week(weekwalkpath):
+            # print(sumres)
             if sumres[1] == '周平均':
                 # db.ins_to_tab(tab_week, sumres)  # 写入周结果
                 continue
@@ -535,8 +552,9 @@ def run_oneday_week(walkpath, tab_day, tab_week):
 if __name__ == '__main__':
     while True:
         try:
-            run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__投递到这里自动计算__', '机场_day_精密_2023',
+            run_oneday_week(r'\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__投递到这里自动计算__',
+                            '机场_day_精密_2023',
                             'week虹桥')
-            time.sleep(3)
+            time.sleep(1)
         except Exception as e:
             traceback.print_exc()
