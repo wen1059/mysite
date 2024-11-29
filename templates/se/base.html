@@ -7,12 +7,12 @@
     <meta charset="UTF-8">
     <!--为了让 Bootstrap 开发的网站对移动设备友好，确保适当的绘制和触屏缩放，需要在网页的 head 之中添加 viewport meta 标签-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 新 Bootstrap5 核心 CSS 文件 -->
-    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
-    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
-    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
     <!-- 引入 jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- 新 Bootstrap5 核心 CSS 文件 -->
+    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css"></script>
     <!-- 引入 dataTables(分页排序查询) -->
 {#    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css"/>#}
     <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>
@@ -24,14 +24,14 @@
     <!-- Nav pills -->
     <ul class="nav nav-pills justify-content-center" role="tablist">
         <li class="nav-item"><a href="/se/badapple" class="nav-link {% if appname == 'badapple' %}active{% endif %}">BadApple!!</a></li>
-        <li class="nav-item"><a href="/se/wpscore" class="nav-link {% block active_wpscore %}{% endblock active_wpscore %}">绩效分值</a></li>
-        <li class="nav-item"><a href="/se/wpcal/" class="nav-link {% block active_wpcal %}{% endblock active_wpcal %}">绩效计算</a></li>
-        <li class="nav-item"><a href="/se/ptc/" class="nav-link {% if appname == 'pdftocsv' %}active{% endif %}">pdf转csv</a></li>
-        <li class="nav-item"><a href="/se/ptw/" class="nav-link {% if appname == 'pdftoword' %}active{% endif %}">pdf转word</a></li>
-        <li class="nav-item"><a href="/se/ppr/" class="nav-link {% if appname == 'pdfpasswdremove' %}active{% endif %}">pdf移除加密</a></li>
-        <li class="nav-item"><a href="/se/opr/" class="nav-link {% if appname == 'officepasswdremove' %}active{% endif %}">office移除加密</a></li>
-        <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>
-        <li class="nav-item"><a href="/se/dp/" class="nav-link {% if appname == 'drawpic' %}active{% endif %}">绘图</a></li>
+{#        <li class="nav-item"><a href="/se/wpscore" class="nav-link {% block active_wpscore %}{% endblock active_wpscore %}">绩效分值</a></li>#}
+{#        <li class="nav-item"><a href="/se/wpcal/" class="nav-link {% block active_wpcal %}{% endblock active_wpcal %}">绩效计算</a></li>#}
+{#        <li class="nav-item"><a href="/se/ptc/" class="nav-link {% if appname == 'pdftocsv' %}active{% endif %}">pdf转csv</a></li>#}
+{#        <li class="nav-item"><a href="/se/ptw/" class="nav-link {% if appname == 'pdftoword' %}active{% endif %}">pdf转word</a></li>#}
+{#        <li class="nav-item"><a href="/se/ppr/" class="nav-link {% if appname == 'pdfpasswdremove' %}active{% endif %}">pdf移除加密</a></li>#}
+{#        <li class="nav-item"><a href="/se/opr/" class="nav-link {% if appname == 'officepasswdremove' %}active{% endif %}">office移除加密</a></li>#}
+{#        <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>#}
+{#        <li class="nav-item"><a href="/se/dp/" class="nav-link {% if appname == 'drawpic' %}active{% endif %}">绘图</a></li>#}
         <li class="nav-item"><a href="/se/ap/" class="nav-link {% if appname == 'airport' %}active{% endif %}">机场噪声</a></li>
 
     </ul>
@@ -69,7 +69,7 @@
 <!-- end 模态框 -->
 
 <script>
-function dosubmit() {
+function showprogress() {
     //表单提交后禁用按钮
     //const btnSubmit = document.getElementById("submit"); //获取表单提交按钮
     //btnSubmit.disabled = true; //将表单提交按钮设置为不可用，可以避免用户再次点击提交按钮进行提交

@@ -34,33 +34,46 @@ from ftplib import FTP
 from uuid import uuid4
 import os
 import sys
+import re
+import pyperclip
 
-try:
-    import pyperclip
-except ImportError:
-    os.system('pip install pyperclip')
-    import pyperclip
 
-ftp = FTP()
-ftp.encoding = 'gbk'
-ftp.connect('10.1.210.119')
-ftp.login(user='', passwd='')
-instrumentname = os.path.split(__file__)[1].split('.')[0]
-# instrumentname = 'SEMTEC_212'
-batch = pyperclip.paste()
-files = sys.argv[1:]
+def getnames():
+    """
+    获取仪器名和批名
+    :return:
+    """
+    text = pyperclip.paste()
+    regx = re.compile(r'批次号：\s*(\w+).+?分析仪器：.+?(SEMTEC-\d+)', flags=re.DOTALL)
+    insname = regx.search(text).group(1)
+    batchnane = regx.search(text).group(2).replace('-', '_')
+    return insname, batchnane
 
-ftp.cwd(instrumentname)
-# 删除旧批文件夹
-for oldbatch in ftp.nlst():
-    try:
-        ftp.rmd(oldbatch)
-    except Exception:
-        ftp.delete(oldbatch)
 
-# 建立新批文件夹
-ftp.mkd(batch)
-for file in files:
-    with open(file, 'rb') as f:
-        ftp.storbinary(rf'STOR .\{batch}\{str(uuid4()) + os.path.split(file)[-1]}', f)
-ftp.quit()
+def sendtoftp():
+    ftp = FTP()
+    ftp.encoding = 'gbk'
+    ftp.connect('10.1.210.119')
+    ftp.login(user='', passwd='')
+    instrumentname = os.path.split(__file__)[1].split('.')[0]
+    # instrumentname = 'SEMTEC_212'
+    batch = pyperclip.paste()
+    files = sys.argv[1:]
+
+    ftp.cwd(instrumentname)
+    # 删除旧批文件夹
+    for oldbatch in ftp.nlst():
+        try:
+            ftp.rmd(oldbatch)
+        except Exception:
+            ftp.delete(oldbatch)
+
+    # 建立新批文件夹
+    ftp.mkd(batch)
+    for file in files:
+        with open(file, 'rb') as f:
+            ftp.storbinary(rf'STOR .\{batch}\{str(uuid4()) + os.path.split(file)[-1]}', f)
+    ftp.quit()
+
+
+sendtoftp()

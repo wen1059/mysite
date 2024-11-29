@@ -5,7 +5,7 @@
 
 {% block base %}
 <hr>
-<form action="/se/wpcal/" method="post" onsubmit=dosubmit()>
+<form action="/se/wpcal/" method="post" onsubmit=showprogress()>
     {% csrf_token %}
     <label> 开始日期: <input type="date" name="start"> </label>
     <label> --结束日期: <input type="date" name="end"> </label>

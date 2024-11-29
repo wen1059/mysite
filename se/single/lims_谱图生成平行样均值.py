@@ -1,12 +1,5 @@
-import os
 import traceback
-
-try:
-    import xlwings
-except ImportError:
-    print('首次运行会下载依赖库，请耐心等待。')
-    os.system('pip install xlwings -i https://pypi.tuna.tsinghua.edu.cn/simple/')
-    import xlwings
+import xlwings
 try:
     file = xlwings.books.active
     # sheet:xlwings.main.Sheet

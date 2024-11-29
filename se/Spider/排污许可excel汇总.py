@@ -8,11 +8,8 @@ from glob import glob
 
 # from typing import List, Any, Union
 
-try:
-    import xlwings
-except:
-    os.system('pip install xlwings')
-    import xlwings
+
+import xlwings
 from xlwings.main import *
 
 

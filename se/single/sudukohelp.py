@@ -54,7 +54,7 @@ def sudukohelp():
             if not conflict(digit, pos):
                 board[pos // 9][pos % 9] = digit
                 backtrack(t + 1)
-                board[pos // 9][pos % 9] = 0
+                board[pos // 9][pos % 9] = 0  # 回溯到上一步时，需要将这次的值设回0
 
     backtrack()
 

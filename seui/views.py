@@ -53,7 +53,7 @@ def index_main(request):
     """
     主域名跳转到指定页面
     """
-    return HttpResponseRedirect('/se/ap/')
+    return HttpResponseRedirect('/se/badapple/')
 
 
 @gzip_page  # response采用gzip压缩后传到前端
@@ -140,12 +140,15 @@ class UploadHandle:
         :param request:
         :return:
         """
+        destinations = []
         assert request.method == 'POST'
-        upf = request.FILES.get('upf')
-        with open(destination := os.path.join(settings.MEDIA_ROOT, self.appname, upf.name), 'wb+') as f:
-            for chuck in upf.chunks():
-                f.write(chuck)
-        self.destination = destination
+        files = request.FILES.getlist('upf')
+        for upf in files:
+            with open(destination := os.path.join(settings.MEDIA_ROOT, self.appname, upf.name), 'wb+') as f:
+                for chuck in upf.chunks():
+                    f.write(chuck)
+            destinations.append(destination)
+        return destinations
 
     def ptc_handle(self, request):
         """
@@ -194,11 +197,12 @@ def ptc(request):
     if request.method == 'POST':
         # pdf转csv提交按钮
         # 已合并至ptc()，先前作为提交按钮的view函数，现在提交按钮也定位到ptc(), 根据request.method判断。
-        handle.uploadfile(request)
-        handle.ptc_handle(request)
-        handle.create_records(request)
-        # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-        # messages.info(request, content)
+        for dest in handle.uploadfile(request):
+            handle.destination = dest
+            handle.ptc_handle(request)
+            handle.create_records(request)
+            # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
+            # messages.info(request, content)
         return HttpResponseRedirect('/se/ptc/')
     return render(request, 'se/base_upload.html', handle.content)
 
@@ -209,9 +213,10 @@ def ptw(request):
     """
     handle = UploadHandle('pdftoword')
     if request.method == 'POST':
-        handle.uploadfile(request)
-        handle.ptw_handle(request)
-        handle.create_records(request)
+        for dest in handle.uploadfile(request):
+            handle.destination = dest
+            handle.ptw_handle(request)
+            handle.create_records(request)
         return HttpResponseRedirect('/se/ptw/')
     return render(request, 'se/base_upload.html', handle.content)
 
@@ -224,9 +229,10 @@ def ppr(request):
     """
     handle = UploadHandle('pdfpasswdremove')
     if request.method == 'POST':
-        handle.uploadfile(request)
-        handle.ppr_handle(request)
-        handle.create_records(request)
+        for dest in handle.uploadfile(request):
+            handle.destination = dest
+            handle.ppr_handle(request)
+            handle.create_records(request)
         return HttpResponseRedirect('/se/ppr/')
     return render(request, 'se/base_upload.html', handle.content)
 
@@ -239,9 +245,10 @@ def opr(request):
     """
     handle = UploadHandle('officepasswdremove')
     if request.method == 'POST':
-        handle.uploadfile(request)
-        handle.opr_handle(request)
-        handle.create_records(request)
+        for dest in handle.uploadfile(request):
+            handle.destination = dest
+            handle.opr_handle(request)
+            handle.create_records(request)
         return HttpResponseRedirect('/se/opr/')
     return render(request, 'se/base_upload.html', handle.content)
 
@@ -323,6 +330,15 @@ def airport(request):
         writer.writerows(queryset.values_list())
         return response
     return render(request, 'se/airport.html', {'queryset': queryset, 'appname': 'airport'})
+
+
+def check_airport(request):
+    from se.机场噪声_2021虹桥 import 检查格式_RE as ck
+    if request.method == 'POST':
+        table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
+        return render(request, 'se/ck.html', {'table': table}, )
+        # return HttpResponse(1)
+    return render(request, 'se/ck.html')
 
 
 def test(request):
