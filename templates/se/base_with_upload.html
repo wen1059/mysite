@@ -1,0 +1,51 @@
+{% extends 'se/base.html' %}
+{#base模板加上拖拽上传框#}
+{% block title %}{{ appname }}{% endblock title %}
+{% block other_base %}
+    <form class="mb-3" method="post" enctype="multipart/form-data" id="uploadForm" onsubmit="showprogress()">
+        {% csrf_token %}
+        <div id="dropZone" style="border: 2px dashed #007bff; padding: 50px; cursor: pointer;">
+            拖拽文件到这里or点击选择文件
+        </div>
+        <input type="file" name="upf" id="fileInput" style="display: none;" multiple>
+        <button type="submit" id="submitButton" style="display: none;">提交</button>
+    </form>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const submitButton = document.getElementById('submitButton');
+
+        // 点击拖拽区域时，模拟点击文件输入元素
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        // 处理文件选择对话框中的文件
+        fileInput.addEventListener('change', () => {
+            submitButton.click();
+        });
+
+        // 当文件被拖拽到拖拽区域上方时，防止默认行为并改变背景色
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.style.backgroundColor = '#e9ecef';
+        });
+        // 当文件离开拖拽区域时，恢复背景色
+        dropZone.addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            dropZone.style.backgroundColor = '';
+        });
+        // 当文件被释放到拖拽区域时，处理文件上传
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            fileInput.files = event.dataTransfer.files;
+            submitButton.click();
+        });
+    </script>
+
+{% block other_upload %}
+{% endblock other_upload %}
+
+{% endblock other_base %}
+
+

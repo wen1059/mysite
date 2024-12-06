@@ -5,7 +5,7 @@ import game_func
 import pygame
 import button
 
-pygame.init()
+pygame.clear_clickboard()
 settings = settings.Settings()
 ai = ai.Ai()
 p1, p2 = player.Player('computer'), player.Player('player2')

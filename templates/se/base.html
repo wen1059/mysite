@@ -12,10 +12,10 @@
     <!-- 新 Bootstrap5 核心 CSS 文件 -->
     <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
     <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
     <!-- 引入 dataTables(分页排序查询) -->
 {#    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css"/>#}
-    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>
+{#    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>#}
     <title>{% block title %}{% endblock title %}</title>
 </head>
 
@@ -38,8 +38,8 @@
 </div>
 
 <div class="container mt-2">
-{% block base %}
-{% endblock base %}
+{% block other_base %}
+{% endblock other_base %}
 </div>
 
 <!-- 进度条模态框 -->
@@ -89,7 +89,7 @@ function showprogress() {
         myDiv.style.width = i + "%";
         myDiv.innerText = i + "%";
         i++;
-    }, 500);
+    }, 100);
     //返回true让表单可以提交
     return true;
 }

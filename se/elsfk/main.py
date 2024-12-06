@@ -7,7 +7,7 @@ from button import Button
 
 
 def main():
-    pygame.init()
+    pygame.clear_clickboard()
     pygame.display.set_caption('elsfk')
     settings = Settings()
     screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))

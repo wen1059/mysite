@@ -45,19 +45,22 @@ def getnames():
     """
     text = pyperclip.paste()
     regx = re.compile(r'批次号：\s*(\w+).+?分析仪器：.+?(SEMTEC-\d+)', flags=re.DOTALL)
-    insname = regx.search(text).group(1)
-    batchnane = regx.search(text).group(2).replace('-', '_')
-    return insname, batchnane
+    searchres = regx.search(text)
+    if searchres:
+        batchname = regx.search(text).group(1)
+        insname = regx.search(text).group(2).replace('-', '_')
+    else:
+        batchname = pyperclip.paste()
+        insname = os.path.split(__file__)[1].split('.')[0]  # instrumentname = 'SEMTEC_212'
+    return batchname, insname
 
 
-def sendtoftp():
+def sendtoftp(server='10.1.224.119'):
     ftp = FTP()
     ftp.encoding = 'gbk'
-    ftp.connect('10.1.210.119')
+    ftp.connect(server)
     ftp.login(user='', passwd='')
-    instrumentname = os.path.split(__file__)[1].split('.')[0]
-    # instrumentname = 'SEMTEC_212'
-    batch = pyperclip.paste()
+    batch, instrumentname = getnames()
     files = sys.argv[1:]
 
     ftp.cwd(instrumentname)

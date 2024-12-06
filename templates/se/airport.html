@@ -1,29 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-cmn-Hans">
-<head>
-
-    <meta charset="UTF-8">
-    <!--为了让 Bootstrap 开发的网站对移动设备友好，确保适当的绘制和触屏缩放，需要在网页的 head 之中添加 viewport meta 标签-->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 新 Bootstrap5 核心 CSS 文件 -->
-    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
-    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
-    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
-    <!-- 引入 jQuery -->
-{#    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>#}
-    <!-- 引入 dataTables(分页排序查询) -->
-{#    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css"/>#}
-{#    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>#}
-</head>
-
-{#{% extends 'se/base.html' %}#}
+{% extends 'se/base.html' %}
 {#{% block title %}机场噪声查询{% endblock title %}#}
-{#{% block base %}#}
-{##}
-{#    <div class="container mt-2">#}
-{#        <br>#}
+{% block other_base %}
+    <div class="container mt-2">
         <form method="post">
-        {% csrf_token %}
+            {% csrf_token %}
 {#            <label>点位： <input type="text" name="position"> </label>#}
 {#            <label>日期： <input type="text" name="acq_date"> </label>#}
 {#            <label>记录时间：<input type="date" name="cal_date"> </label>#}
@@ -33,15 +13,15 @@
                     onclick="return confirm('确定？')">清空数据
             </button>
 
-<div class="text-center">
-        <button class="btn btn-outline-primary" onclick="window.location.href='/'" >刷新</button>
-</div>
-                </form>
-{#    </div>#}
-{#    <div class="container mt-2">#}
+            <div class="text-center">
+                    <button class="btn btn-outline-primary" onclick="window.location.href='/'" >刷新</button>
+            </div>
+        </form>
+    </div>
+    <div class="container mt-2">
         <table class="table table-hover table-bordered text-center" id="tabap">
-{#            <thead class="table-success">#}
-{#            <tr>#}
+            <thead class="table-success">
+                <tr>
 {#                <th>序号</th>#}
                 <th>点位</th>
 {#                <th>日期</th>#}
@@ -55,8 +35,8 @@
 {#                <th>背景</th>#}
                 <th>记录时间</th>
 {#                <th>操作</th>#}
-{#            </tr>#}
-{#            </thead>#}
+                </tr>
+            </thead>
             <tbody>
             {% for item in queryset %}
                 <tr>
@@ -83,15 +63,17 @@
             {% endfor %}
             </tbody>
         </table>
-{#    </div>#}
-{#    <style>#}
-{#        .btn-custom-xs {#}
-{#            padding: 0.125rem 0.125rem;#}
-{#            font-size: 1rem;#}
-{#            line-height: 0.92rem;#}
-{#            border-radius: 0.25rem;#}
-{#        }#}
-{#    </style>#}
+    </div>
+
+    <style>
+        .btn-custom-xs {
+            padding: 0.125rem 0.125rem;
+            font-size: 1rem;
+            line-height: 0.92rem;
+            border-radius: 0.25rem;
+        }
+    </style>
+
 {#    <script>#}
 {#        $(document).ready(function () {#}
 {#            $('#tabap').DataTable({#}
@@ -106,4 +88,4 @@
 {#    </script>#}
 {##}
 {##}
-{#{% endblock base %}#}
+{% endblock other_base %}

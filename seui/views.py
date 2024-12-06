@@ -136,12 +136,10 @@ class UploadHandle:
         <input type="file" name="upf" >
         <input type="submit">
         </form>
-        :param basedir: 保存到的子目录（appname）
         :param request:
         :return:
         """
         destinations = []
-        assert request.method == 'POST'
         files = request.FILES.getlist('upf')
         for upf in files:
             with open(destination := os.path.join(settings.MEDIA_ROOT, self.appname, upf.name), 'wb+') as f:
@@ -204,7 +202,7 @@ def ptc(request):
             # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
             # messages.info(request, content)
         return HttpResponseRedirect('/se/ptc/')
-    return render(request, 'se/base_upload.html', handle.content)
+    return render(request, 'se/file_upload_download.html', handle.content)
 
 
 def ptw(request):
@@ -218,7 +216,7 @@ def ptw(request):
             handle.ptw_handle(request)
             handle.create_records(request)
         return HttpResponseRedirect('/se/ptw/')
-    return render(request, 'se/base_upload.html', handle.content)
+    return render(request, 'se/file_upload_download.html', handle.content)
 
 
 def ppr(request):
@@ -234,7 +232,7 @@ def ppr(request):
             handle.ppr_handle(request)
             handle.create_records(request)
         return HttpResponseRedirect('/se/ppr/')
-    return render(request, 'se/base_upload.html', handle.content)
+    return render(request, 'se/file_upload_download.html', handle.content)
 
 
 def opr(request):
@@ -250,7 +248,7 @@ def opr(request):
             handle.opr_handle(request)
             handle.create_records(request)
         return HttpResponseRedirect('/se/opr/')
-    return render(request, 'se/base_upload.html', handle.content)
+    return render(request, 'se/file_upload_download.html', handle.content)
 
 
 def sl(request):
@@ -337,17 +335,8 @@ def check_airport(request):
     if request.method == 'POST':
         table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
         return render(request, 'se/ck.html', {'table': table}, )
-        # return HttpResponse(1)
     return render(request, 'se/ck.html')
 
 
 def test(request):
-    print(time.ctime())
-    randomlist = ['badapple',
-                  # '鸡你太美',
-                  ]
-    with open(r'C:\Users\Administrator\PycharmProjects\mysite\static\indextext\badapple.txt') as f:
-        frametxts = f.read().split('\t')
-    txt = {'txt': frametxts[40:]}  # 跳过前40帧
-    print(time.ctime())
-    return JsonResponse(txt)  # 改为全部帧传到前端js控制播放
+    return JsonResponse(1)
