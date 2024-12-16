@@ -28,12 +28,14 @@ def get_names_from_clickboard():
     next_text = pyperclip.paste()
     if clickboard_text != next_text and next_text != '':  # 检测到文本更新
         clickboard_text = next_text  # 更新值
-        logging.debug(f'{clickboard_text[:50].replace('\n', '').replace('\r', '')}...')  # 输出更新的文本内容
+        debug_text = clickboard_text_ if len(
+            clickboard_text_ := next_text.replace('\n', '').replace('\r', '')) <= 50 else clickboard_text_[:50] + '...'
+        logging.debug(f'copied_text:{debug_text}')  # 输出更新的文本内容
         regx = re.compile(r'批次号：\s*(\w+).+?分析仪器：.+?(SEMTEC-\d+)', flags=re.DOTALL)
         if searchres := regx.search(clickboard_text):
             batchcode = searchres.group(1)
             equcode = searchres.group(2).replace('-', '_')
-            logging.info(f'{equcode}, {batchcode}')
+            logging.info(f'find_codes:({equcode},{batchcode})')
 
 
 def get_filepaths_from_clickboard():
@@ -42,15 +44,18 @@ def get_filepaths_from_clickboard():
     :return:
     """
     global filepaths, equcode, batchcode
-    if equcode and batchcode:  # 复制网页后才识别复制的文件，这样可以保证顺序，避免混乱
+    try:
+        win32clipboard.OpenClipboard()
+        data = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
+        logging.debug(f'selected_files:{data}')
+        filepaths = [fp for fp in data if os.path.isfile(fp)]
+    except TypeError:
+        pass
+    finally:
         try:
-            win32clipboard.OpenClipboard()
-            data = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
-            filepaths = [fp for fp in data if os.path.isfile(fp)]
-        except TypeError:
-            pass
-        finally:
             win32clipboard.CloseClipboard()
+        except Exception:
+            pass
 
 
 def clear_clickboard():
@@ -62,7 +67,10 @@ def clear_clickboard():
         win32clipboard.OpenClipboard()
         win32clipboard.EmptyClipboard()
     finally:
-        win32clipboard.CloseClipboard()
+        try:
+            win32clipboard.CloseClipboard()
+        except Exception:
+            pass
 
 
 def init():
@@ -71,9 +79,9 @@ def init():
     :return:
     """
     global filepaths, equcode, batchcode, clickboard_text
+    filepaths, equcode, batchcode = [], '', ''  # 初始化3个关键变量
+    clickboard_text = ''  # 存放clickboard文本，如果发生改变，更新值然后reserch，避免重复检测。
     clear_clickboard()
-    filepaths, equcode, batchcode = [], '', ''
-    clickboard_text = ''
 
 
 def encode_file_to_base64(file_path):
@@ -82,8 +90,8 @@ def encode_file_to_base64(file_path):
     :param file_path:
     :return:
     """
-    with open(file_path, "rb") as file:
-        encoded_string = base64.b64encode(file.read()).decode('utf-8')
+    with open(file_path, "rb") as f:
+        encoded_string = base64.b64encode(f.read()).decode('utf-8')
     return encoded_string
 
 
@@ -124,15 +132,16 @@ def send_to_server(file_path, equipment_code, batch_code):
 
 
 if __name__ == '__main__':
-    filepaths, equcode, batchcode = [], '', ''  # 初始化3个关键变量
-    clickboard_text = ''  # 存放clickboard文本，如果发生改变，更新值然后reserch，避免重复检测。
+    global filepaths, equcode, batchcode, clickboard_text
+    init()
     while True:
-        get_names_from_clickboard()
-        get_filepaths_from_clickboard()
-
-        if equcode and batchcode and filepaths:
-            for file in filepaths:
-                response = send_to_server(file_path=file, equipment_code=equcode, batch_code=batchcode)
-                logging.info(f'{os.path.split(file)[-1]}, {response.status_code}')
-            init()
-        time.sleep(0.3)
+        get_names_from_clickboard()  # 循环监测text
+        time.sleep(0.4)  # 循环时间应<用户两次复制操作之间间隔的时间
+        while equcode and batchcode:  # 读取到text后，改为监测文件
+            time.sleep(0.5)
+            get_filepaths_from_clickboard()
+            if filepaths:
+                for file in filepaths:
+                    response = send_to_server(file_path=file, equipment_code=equcode, batch_code=batchcode)
+                    logging.info(f'sent:{os.path.split(file)[-1]}, status_code:{response.status_code}')
+                init()

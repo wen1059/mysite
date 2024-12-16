@@ -11,7 +11,9 @@ class Settings:
         self.scale = 3  # 字体高宽比,django{{ content|linebreaks }}渲染到html<code>标签字体设置3(改为<pre>标签)
         self.gscale = [r'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzxvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`". ',
                        r'$%#*=+-:. ',
-                       r'#. ']
+                       r'#. ',
+                       r'█ ',  # 二维码
+                       ]
 
 
 def convert_frame_to_asc(frame):
@@ -43,9 +45,8 @@ def convert_frame_to_asc(frame):
         for j in range(settings.cols):
             img = image.crop((int(j * w), int(i * h), int((j + 1) * w), int((i + 1) * h)))
             avgl = getaveL(img)
-            s0 = settings.gscale[0][round(avgl / 255 * (len(settings.gscale[0]) - 1))]
-            s1 = settings.gscale[1][round(avgl / 255 * (len(settings.gscale[1]) - 1))]
-            asc += s1
+            s = settings.gscale[3][round(avgl / 255 * (len(settings.gscale[3]) - 1))]
+            asc += s
         asc += '\n'
     asc += '\t'  # 把所有帧存在一起，\t作为帧之间的识别符
     return asc
@@ -78,8 +79,9 @@ def print_ascs(txt):
             os.system('cls')
             print(i)
             time.sleep(1 / 30)
+            os.system('pause')
 
 
 if __name__ == '__main__':
-    convert_video_to_ascs(r"C:\Users\Administrator\Downloads\jntm.mp4")
-    # print_ascs(r"C:\Users\Administrator\PycharmProjects\mysite\static\indextext\test2-2.txt")
+    convert_video_to_ascs(r"C:\Users\Administrator\Downloads\qrcode.png")
+    print_ascs('test.txt')
