@@ -20,6 +20,7 @@
       <sourceFolder url="file://$MODULE_DIR$/projectcode/thredandprocess" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/projectcode/24point" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/projectcode/12306-master" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/single_useless" />
       <excludeFolder url="file://$MODULE_DIR$/wx130a66d2e08e5e31" />
     </content>

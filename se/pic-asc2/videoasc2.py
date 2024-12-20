@@ -7,8 +7,8 @@ from PIL import Image
 
 class Settings:
     def __init__(self):
-        self.cols = 253  # 图片分割的列数, 1920x1080设置成253列x47行
-        self.scale = 3  # 字体高宽比,django{{ content|linebreaks }}渲染到html<code>标签字体设置3(改为<pre>标签)
+        self.cols = 35  # 图片分割的列数, web:1920x1080设置成253列x47行
+        self.scale = 1.5  # 字体高宽比,django{{ content|linebreaks }}渲染到html<code>标签字体设置3(改为<pre>标签)
         self.gscale = [r'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzxvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`". ',
                        r'$%#*=+-:. ',
                        r'#. ',
@@ -45,7 +45,7 @@ def convert_frame_to_asc(frame):
         for j in range(settings.cols):
             img = image.crop((int(j * w), int(i * h), int((j + 1) * w), int((i + 1) * h)))
             avgl = getaveL(img)
-            s = settings.gscale[3][round(avgl / 255 * (len(settings.gscale[3]) - 1))]
+            s = settings.gscale[2][round(avgl / 255 * (len(settings.gscale[2]) - 1))]
             asc += s
         asc += '\n'
     asc += '\t'  # 把所有帧存在一起，\t作为帧之间的识别符
@@ -83,5 +83,6 @@ def print_ascs(txt):
 
 
 if __name__ == '__main__':
-    convert_video_to_ascs(r"C:\Users\Administrator\Downloads\qrcode.png")
+    convert_video_to_ascs(r"C:\Users\Administrator\Pictures\KK2.jpg"
+                          )
     print_ascs('test.txt')

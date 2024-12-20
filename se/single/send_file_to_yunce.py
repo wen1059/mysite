@@ -60,7 +60,7 @@ def get_filepaths_from_clickboard():
 
 def clear_clickboard():
     """
-    清空剪贴板，设置默认变量
+    清空剪贴板
     :return:
     """
     try:
@@ -86,7 +86,7 @@ def init():
 
 def encode_file_to_base64(file_path):
     """
-    将文件编码
+    将文件base64编码
     :param file_path:
     :return:
     """
@@ -97,7 +97,7 @@ def encode_file_to_base64(file_path):
 
 def send_to_server(file_path, equipment_code, batch_code):
     """
-
+    直接将文件发送到服务端
     :param file_path: 文件路径
     :param equipment_code: SEMTEC_212
     :param batch_code: FG2412419
@@ -131,7 +131,17 @@ def send_to_server(file_path, equipment_code, batch_code):
     return response
 
 
+def printinstructions():
+    print("KunKun is my idol and I am an IKUN\n"
+          "Let's use KunKun_upload_tool instead of ImportDataApp")
+    print('\n使用说明：\n'
+          '1、在分析录入页面Ctrl+A，Ctrl+C复制所有文字;\n'
+          '2、复制要上传的谱图文件;\n'
+          '无需黏贴，谱图会自动上传。')
+
+
 if __name__ == '__main__':
+    printinstructions()
     global filepaths, equcode, batchcode, clickboard_text
     init()
     while True:
