@@ -10,13 +10,15 @@ import os
 import re
 
 import numpy as np
-import pymysql
+import psycopg2
 import pandas as pd
 # import xlwings #改用pandas读取
 import time
 import shutil
 import traceback
 from decimal import Decimal
+
+
 # from xlwings.main import Book, Sheet
 
 
@@ -24,12 +26,12 @@ class Mysqldb:
     """使用此类需要预先在mysql建立好库和表"""
 
     def __init__(self):
-        self.con = pymysql.connect(host='localhost',
-                                   port=3306,
-                                   user='root',
-                                   passwd='123456',
-                                   database='mysite'
-                                   )
+        self.con = psycopg2.connect(host='localhost',
+                                    port=5432,
+                                    user='postgres',
+                                    password='123456',
+                                    dbname='mysite'
+                                    )
         self.curse = self.con.cursor()
 
     def createtab(self):
@@ -78,13 +80,13 @@ class Mysqldb:
         :return:
         """
         sql = '''INSERT INTO {} 
-            ( pri, 点位, 日期, 分析员, 
-            N1, N2, N3, N总, Lamaxpb, Lwecpn, 
-            N1_10, N2_10, N3_10, N总_10, Lamaxpb_10, Lwecpn_10,
-            N1_20, N2_20, N3_20, N总_20, Lamaxpb_20, Lwecpn_20, 
+            (点位, 日期, 分析员, 
+            "N1", "N2", "N3", "N总", "Lamaxpb", "Lwecpn", 
+            "N1_10", "N2_10", "N3_10", "N总_10", "Lamaxpb_10", "Lwecpn_10",
+            "N1_20", "N2_20", "N3_20", "N总_20", "Lamaxpb_20", "Lwecpn_20", 
             背景, 记录时间 ) 
             VALUES 
-            (NULL, \'{}\', \'{}\', \'{}\', 
+            (\'{}\', \'{}\', \'{}\', 
             \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', 
             \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', 
             \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', 
@@ -438,15 +440,15 @@ def cal_oneday_week(walkpath):
         print(time.ctime(), file24name)
         try:
             dianwei, date, fx_name = dw_date(file24name)
-            # v = sht.range('n4').value
-            bg = 0  # float(v) if v else 0
+            v = sht[3][13]
+            bg = float(v) if v else 0
             dic_ = gendic(sht)
             hb_ = count_hb(sht)
             # ---以下是>20db的日计算
             dic_day_20 = gendic_addmax(dic_[1])
             lamaxp_all_day_20 = gen_lamaxp_all(dic_day_20)
             lamaxpb_day_20 = cal_bar(lamaxp_all_day_20)
-            hb_day_20 = hb_[1]
+            hb_day_20 = hb_[0]  # 航班采用all的航班
             lwecpn_day_20 = cal_lwecpn(lamaxpb_day_20, hb_day_20)
             # ---以下是>10db的日计算
             dic_day_10 = gendic_addmax(dic_[2])

@@ -79,6 +79,8 @@ def run(file):
     repack(file, unpackdir)
     os.rename(f'{file}.zip', file)
     shutil.rmtree(unpackdir)
+    outputfilename = os.path.split(file)[-1]
+    return outputfilename
 
 
 if __name__ == '__main__':

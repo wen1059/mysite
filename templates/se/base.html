@@ -8,11 +8,11 @@
     <!--为了让 Bootstrap 开发的网站对移动设备友好，确保适当的绘制和触屏缩放，需要在网页的 head 之中添加 viewport meta 标签-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 引入 jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+{#    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>#}
     <!-- 新 Bootstrap5 核心 CSS 文件 -->
     <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
-    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
+    <script src="{% static 'javascript/http_cdn.staticfile.org_twitter-bootstrap_5.2.3_js_bootstrap.bundle.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'javascript/http_cdn.staticfile.org_twitter-bootstrap_5.2.3_css_bootstrap.css' %}">
     <!-- 引入 dataTables(分页排序查询) -->
 {#    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css"/>#}
 {#    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>#}
@@ -26,10 +26,7 @@
         <li class="nav-item"><a href="/se/badapple" class="nav-link {% if appname == 'badapple' %}active{% endif %}">BadApple!!</a></li>
 {#        <li class="nav-item"><a href="/se/wpscore" class="nav-link {% block active_wpscore %}{% endblock active_wpscore %}">绩效分值</a></li>#}
 {#        <li class="nav-item"><a href="/se/wpcal/" class="nav-link {% block active_wpcal %}{% endblock active_wpcal %}">绩效计算</a></li>#}
-{#        <li class="nav-item"><a href="/se/ptc/" class="nav-link {% if appname == 'pdftocsv' %}active{% endif %}">pdf转csv</a></li>#}
-{#        <li class="nav-item"><a href="/se/ptw/" class="nav-link {% if appname == 'pdftoword' %}active{% endif %}">pdf转word</a></li>#}
-{#        <li class="nav-item"><a href="/se/ppr/" class="nav-link {% if appname == 'pdfpasswdremove' %}active{% endif %}">pdf移除加密</a></li>#}
-{#        <li class="nav-item"><a href="/se/opr/" class="nav-link {% if appname == 'officepasswdremove' %}active{% endif %}">office移除加密</a></li>#}
+        <li class="nav-item"><a href="/se/uph/" class="nav-link {% if navname == 'uploadhandle' %}active{% endif %}">文件处理</a></li>
 {#        <li class="nav-item"><a href="/se/sl/" class="nav-link {% block active_sl %}{% endblock active_sl %}">lims查询</a></li>#}
 {#        <li class="nav-item"><a href="/se/dp/" class="nav-link {% if appname == 'drawpic' %}active{% endif %}">绘图</a></li>#}
         <li class="nav-item"><a href="/se/ap/" class="nav-link {% if appname == 'airport' %}active{% endif %}">机场噪声</a></li>
@@ -70,27 +67,23 @@
 
 <script>
 function showprogress() {
-    //表单提交后禁用按钮
-    //const btnSubmit = document.getElementById("submit"); //获取表单提交按钮
-    //btnSubmit.disabled = true; //将表单提交按钮设置为不可用，可以避免用户再次点击提交按钮进行提交
-    //btnSubmit.style.color = "SlateGray"; //变成灰色
+    // 显示模态框
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    progressModal.show();
 
-    //表单提交后在模态框显示虚假进度条
-    $(document).ready(function () {
-        $("#progressModal").modal('show')
-    });
     let i = 0;
     let mDiv = setInterval(function () {
         if (i >= 99) {
             clearInterval(mDiv);
-            //i = 0
+            // i = 0; // 如果需要重置进度条，可以取消注释
         }
         const myDiv = document.getElementById("myDiv");
         myDiv.style.width = i + "%";
         myDiv.innerText = i + "%";
         i++;
     }, 100);
-    //返回true让表单可以提交
+
+    // 返回 true 让表单可以提交
     return true;
 }
 </script>

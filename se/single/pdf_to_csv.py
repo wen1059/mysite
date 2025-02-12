@@ -86,11 +86,11 @@ def writecsv(text, csvfile):
 def transe(pdffile, rename=False):
     if pdffile.lower().endswith('.pdf'):
         text = readpdf(pdffile)
-        writecsv(text, pdffile.replace(pdffile[-4:], '.csv'))
+        writecsv(text, outputname := pdffile.replace(pdffile[-4:], '.csv'))
         # print(pdffile)
         if rename:
             os.rename(pdffile, pdffile + '.bak')
-
+        return outputname
 
 def run(rootpath, recursive=False, rename=False):
     """
@@ -111,9 +111,29 @@ def run(rootpath, recursive=False, rename=False):
                 break
 
 
+def extract_compunds(pdf_fp):
+    """
+    从安捷伦7890B的pdf报告提取结果
+    :param pdf_fp:
+    :return:
+    """
+    with pdfplumber.open(pdf_fp) as f:
+        txt = ''.join([p.extract_text() for p in f.pages])
+    regx_samplename = re.compile(r'数据文件.+\\(.*).D')
+    samplename = regx_samplename.search(txt).group(1)
+    regx_compunds = re.compile(r'-{18}\n(.+?)\n总量', re.DOTALL)
+    compunds = regx_compunds.search(txt).group(1)
+    if '-' * 18 in compunds:
+        regx_compunds2 = re.compile('(.+)7890B.+-{18}\n(.+)', re.DOTALL)
+        compunds = ''.join([(searchres := regx_compunds2.search(compunds)).group(1), searchres.group(2)])
+    res = [(line.split()[-1], 0 if line.split()[-2] == '-' else float(line.split()[-2])) for line in
+           compunds.split('\n')]
+    return dict([(samplename, dict(res)), ])
+
+
 if __name__ == '__main__':
     # path = os.path.split(os.path.realpath(__file__))[0]
-    path = r"C:\Users\Administrator\Desktop\新建文件夹\新建文件夹\B77055506.pdf"
+    path = r"C:\Users\Administrator\Desktop\KB2.pdf"
     run(path, recursive=False)
     # print(readpdf(path))
     print('完成')

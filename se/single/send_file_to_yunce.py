@@ -10,6 +10,7 @@ import logging
 import time
 
 import win32clipboard
+import ctypes
 import requests
 import pyperclip
 
@@ -87,6 +88,7 @@ def init():
 def encode_file_to_base64(file_path):
     """
     将文件base64编码
+    base64编码和返回的对象是bytes，decode后返回str
     :param file_path:
     :return:
     """
@@ -98,6 +100,7 @@ def encode_file_to_base64(file_path):
 def send_to_server(file_path, equipment_code, batch_code):
     """
     直接将文件发送到服务端
+    requests发送的是bytes，requests会自动将str转bytes，但在遇到错误时需要手动将str encode为bytes
     :param file_path: 文件路径
     :param equipment_code: SEMTEC_212
     :param batch_code: FG2412419
@@ -132,15 +135,69 @@ def send_to_server(file_path, equipment_code, batch_code):
 
 
 def printinstructions():
-    print("KunKun is my idol and I am an IKUN\n"
-          "Let's use KunKun_upload_tool instead of ImportDataApp")
-    print('\n使用说明：\n'
+    qrcode = '''||||||||||||||||||||||||||||||||||||||||||||||||||||||
+||              ||||  ||||  ||||    ||              ||
+||  ||||||||||  ||||||        ||    ||  ||||||||||  ||
+||  ||      ||  ||      ||  ||||||  ||  ||      ||  ||
+||  ||      ||  ||||      ||||||    ||  ||      ||  ||
+||  ||      ||  ||||||  ||||||||    ||  ||      ||  ||
+||  ||||||||||  ||||  ||||||||    ||||  ||||||||||  ||
+||              ||  ||  ||  ||  ||  ||              ||
+||||||||||||||||||      ||      ||  ||||||||||||||||||
+||      ||          ||    ||||          ||||||  ||||||
+||  ||||  ||||||  ||||    ||||||||||      ||||||||  ||
+||||                  ||||||  ||||    ||||  ||      ||
+||||    ||  ||||||||||||  ||||||          ||||||  ||||
+||  ||||    ||    ||||||||  ||||||||||    ||  ||    ||
+||||    ||||||||||||||||      ||||||||    ||  ||||  ||
+||  ||||  ||    ||    ||    ||  ||  ||      ||      ||
+||||        ||||    ||||||      ||||||||  ||  ||  ||||
+||  ||||        ||    ||  ||||  ||            ||||||||
+||||||||||||||||||  ||    ||||  ||  ||||||          ||
+||              ||  ||  ||||  ||    ||  ||  ||||    ||
+||  ||||||||||  ||  ||||  ||||||    ||||||    ||||  ||
+||  ||      ||  ||    ||||  ||||||          ||||||  ||
+||  ||      ||  ||||          ||      ||||  ||  ||||||
+||  ||      ||  ||    ||    ||  ||  ||||||    ||||  ||
+||  ||||||||||  ||  ||||||      ||  ||  ||    ||  ||||
+||              ||    ||  ||||  ||  ||||  ||||||    ||
+||||||||||||||||||||||||||||||||||||||||||||||||||||||
+'''
+    print(qrcode)
+    print("坤坤谱图上传助手V1.0\n"
+          "支持系统：Windows 10/11\n"
+          "windows10下鼠标左键暂停程序，右键恢复程序，windows11不受影响。\n"
+          "KunKun is my idol and I am an IKUN.\n"
+          "Let's use KunKun_upload_tool instead of YunCeApp.\n")
+    print('使用说明：\n'
           '1、在分析录入页面Ctrl+A，Ctrl+C复制所有文字;\n'
-          '2、复制要上传的谱图文件;\n'
-          '无需黏贴，谱图会自动上传。')
+          '2、复制要上传的谱图文件（可多选），文件会自动上传。\n')
+
+
+def disable_quickedit():
+    """
+    禁用控制台快速编辑
+    :return:
+    """
+    # 获取控制台输入输出的句柄
+    kernel32 = ctypes.windll.kernel32
+
+    # 获取标准输入句柄
+    stdin_handle = kernel32.GetStdHandle(-10)  # -10 表示标准输入
+
+    # 获取当前控制台输入模式
+    mode = ctypes.c_uint32()
+    kernel32.GetConsoleMode(stdin_handle, ctypes.byref(mode))
+
+    # 关闭快速编辑模式（0x0040是表示快速编辑模式的标志）
+    new_mode = mode.value & ~0x0040  # 清除快速编辑模式的标志
+
+    # 设置新的控制台模式
+    kernel32.SetConsoleMode(stdin_handle, new_mode)
 
 
 if __name__ == '__main__':
+    # disable_quickedit()
     printinstructions()
     global filepaths, equcode, batchcode, clickboard_text
     init()
@@ -155,3 +212,5 @@ if __name__ == '__main__':
                     response = send_to_server(file_path=file, equipment_code=equcode, batch_code=batchcode)
                     logging.info(f'sent:{os.path.split(file)[-1]}, status_code:{response.status_code}')
                 init()
+
+#  pyinstaller 坤坤谱图上传助手.py -F -i kk.ico

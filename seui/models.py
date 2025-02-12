@@ -5,11 +5,6 @@ from django import forms
 
 
 # Create your models here.
-# 太卡，磁盘读取严重，放弃
-# class Indextxt(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     frame = models.IntegerField()
-#     txt = models.TextField(null=True)
 
 class Scores(models.Model):
     """
@@ -41,6 +36,12 @@ class Airport(models.Model):
     nall = models.IntegerField(db_column='N总', blank=True, null=True)
     lamaxpb = models.FloatField(db_column='Lamaxpb', blank=True, null=True)
     lwecpn = models.FloatField(db_column='Lwecpn', blank=True, null=True)
+    n1_20 = models.IntegerField(db_column='N1_20', blank=True, null=True)
+    n2_20 = models.IntegerField(db_column='N2_20', blank=True, null=True)
+    n3_20 = models.IntegerField(db_column='N3_20', blank=True, null=True)
+    nall_20 = models.IntegerField(db_column='N总_20', blank=True, null=True)
+    lamaxpb_20 = models.FloatField(db_column='Lamaxpb_20', blank=True, null=True)
+    lwecpn_20 = models.FloatField(db_column='Lwecpn_20', blank=True, null=True)
     bg = models.FloatField(db_column='背景', blank=True, null=True)  # 背景
     cal_date = models.DateTimeField(db_column='记录时间', blank=True, null=True)  # 记录时间
 
@@ -54,10 +55,9 @@ class Records(models.Model):
     操作记录
     """
     id = models.AutoField(primary_key=True)
-    timestamp = models.DateTimeField(null=True)
     filein = models.CharField(max_length=255, null=True)
     fileout = models.CharField(max_length=255, null=True)
-    fileout_f = models.CharField(max_length=255, null=True)
+    timestamp = models.DateTimeField(null=True)
     ip = models.GenericIPAddressField(null=True)
     appname = models.CharField(max_length=255, null=True)
 

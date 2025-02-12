@@ -10,10 +10,11 @@ def convert(pdf: str, rename=False):
     :return:
     """
     conv = Converter(pdf)
-    conv.convert(pdf.replace('.pdf', '.docx'), start=0, end=None)
+    conv.convert(outputname := pdf.replace('.pdf', '.docx'), start=0, end=None)
     conv.close()
     if rename:
         os.rename(pdf, pdf + '.bak')
+    return outputname
 
 
 def findpdfs(path):

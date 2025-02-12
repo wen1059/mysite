@@ -9,20 +9,20 @@ import datetime
 from decimal import Decimal
 
 import pandas as pd
-import pymysql
-import 机场噪声_2021虹桥.day_epn_acu_虹桥 as oldcal
+import psycopg2
+# import 机场噪声_2021虹桥.day_epn_acu_虹桥 as oldcal
 
 
 class Mysqldb:
     """使用此类需要预先在mysql建立好库和表"""
 
     def __init__(self):
-        self.con = pymysql.connect(host='localhost',
-                                   port=3306,
-                                   user='root',
-                                   passwd='123456',
-                                   database='mysite'
-                                   )
+        self.con = psycopg2.connect(host='localhost',
+                                    port=5432,
+                                    user='postgres',
+                                    password='123456',
+                                    dbname='mysite'
+                                    )
         self.curse = self.con.cursor()
 
     def ins_to_tab(self, tab, values):
@@ -34,9 +34,9 @@ class Mysqldb:
         :return:
         """
         sql = f'''INSERT INTO {tab} 
-            ( pri, 点位, 日期,  Ldn, Nd_有效, Nn_有效, Nd_总, Nn_总, 是否有效, 记录时间 ) 
+            (点位, 日期,  "Ldn", "Nd_有效", "Nn_有效", "Nd_总", "Nn_总", 是否有效, 记录时间 ) 
             VALUES 
-            (NULL, '{values[0]}', '{values[1]}', '{values[2]}', '{values[3]}', '{values[4]}', '{values[5]}', '{values[6]}', '{values[7]}', now())'''
+            ('{values[0]}', '{values[1]}', '{values[2]}', '{values[3]}', '{values[4]}', '{values[5]}', '{values[6]}', '{values[7]}', now())'''
         self.curse.execute(sql)
         self.con.commit()
 

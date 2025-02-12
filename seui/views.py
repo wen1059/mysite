@@ -63,10 +63,11 @@ def badapple(request):
     1、先视频转字符画保存在一个txt，2、读取txt返回json（value为数组）到前端，3、前端js依次读取数组显示。
     """
     if request.method == 'POST':
-        if 'frameindex' in request.POST:
-            randomlist = ['badapple',
-                          # '鸡你太美',
-                          ]
+        if 'frameindex' in (body := json.loads(request.body)):
+            randomlist = [
+                'badapple',
+                '鸡你太美',
+            ]
             with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
                 frametxts = f.read().split('\t')
             txt = {'txt': frametxts[40:]}  # 跳过前40帧
@@ -116,139 +117,186 @@ def wpcal(request):
         return HttpResponseRedirect('/se/wpcal/')
 
 
-class UploadHandle:
-    """
-    文件上传后处理并返回新文件，这些网页的类。
-    """
+# class UploadHandle:
+#     """
+#     文件上传后处理并返回新文件，这些网页的类。
+#     """
+#
+#     def __init__(self, appname):
+#         self.appname = appname  # appname，文件上传到media下的子目录名/数据库appname字段
+#         self.sql_datas = Records.objects.filter(appname=self.appname).order_by('-timestamp')  # 数据库data
+#         self.content = {'datas': self.sql_datas, 'appname': self.appname}  # render到前端的数据
+#         self.destination = ''  # 上传文件的绝对路径，会由后续函数更新
+#         self.new_ext = ''  # 处理后新文件的扩展名，为了重命名fileout，会由后续函数更新
+#
+#     def uploadfile(self, request):
+#         """
+#         简单文件上传，通过with open保存。
+#         <form method="post" enctype="multipart/form-data">
+#         {% csrf_token %}
+#         <input type="file" name="upf" >
+#         <input type="submit">
+#         </form>
+#         :param request:
+#         :return:
+#         """
+#         destinations = []
+#         files = request.FILES.getlist('upf')
+#         for upf in files:
+#             with open(destination := os.path.join(settings.MEDIA_ROOT, self.appname, upf.name), 'wb+') as f:
+#                 for chuck in upf.chunks():
+#                     f.write(chuck)
+#             destinations.append(destination)
+#         return destinations
+#
+#     def ptc_handle(self, request):
+#         """
+#         处理上传的文件
+#         :param request:
+#         :return:
+#         """
+#         from se.single import pdf_to_csv
+#         pdf_to_csv.transe(self.destination)
+#         self.new_ext = '.csv'
+#
+#     def ptw_handle(self, request):
+#         from se.single import pdf_to_word
+#         pdf_to_word.convert(self.destination)
+#         self.new_ext = '.docx'
+#
+#     def ppr_handle(self, request):
+#         from se.single import pdfpasswdremover
+#         pdfpasswdremover.unlock(self.destination)
+#         self.new_ext = '.pdf'
+#
+#     def opr_handle(self, request):
+#         if self.destination.lower().endswith(('.xls', '.xlsx')):
+#             from se.single import excel去加密 as epr
+#             epr.run(self.destination)
+#             self.new_ext = '.xlsx'
+#         elif self.destination.lower().endswith(('.doc', '.docx')):
+#             from se.single import word去加密 as wpr
+#             wpr.run(self.destination)
+#             self.new_ext = '.docx'
+#
+#     def create_records(self, request):
+#         Records.objects.create(timestamp=timezone.now(),
+#                                filein=(filein := os.path.split(self.destination)[-1]),
+#                                fileout=filein.split('.')[0] + self.new_ext,
+#                                ip=get_ip(request),
+#                                appname=self.appname
+#                                )
+#
+#
+# def ptc(request):
+#     """
+#     pdf转csv页面
+#     """
+#     handle = UploadHandle('pdftocsv')
+#     if request.method == 'POST':
+#         # pdf转csv提交按钮
+#         # 已合并至ptc()，先前作为提交按钮的view函数，现在提交按钮也定位到ptc(), 根据request.method判断。
+#         for dest in handle.uploadfile(request):
+#             handle.destination = dest
+#             handle.ptc_handle(request)
+#             handle.create_records(request)
+#             # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
+#             # messages.info(request, content)
+#         return HttpResponseRedirect('/se/ptc/')
+#     return render(request, 'se/file_upload_download.html', handle.content)
+#
+#
+# def ptw(request):
+#     """
+#     pdf转word页面
+#     """
+#     handle = UploadHandle('pdftoword')
+#     if request.method == 'POST':
+#         for dest in handle.uploadfile(request):
+#             handle.destination = dest
+#             handle.ptw_handle(request)
+#             handle.create_records(request)
+#         return HttpResponseRedirect('/se/ptw/')
+#     return render(request, 'se/file_upload_download.html', handle.content)
+#
+#
+# def ppr(request):
+#     """
+#     移除pdf编辑限制的密码
+#     :param request:
+#     :return:
+#     """
+#     handle = UploadHandle('pdfpasswdremove')
+#     if request.method == 'POST':
+#         for dest in handle.uploadfile(request):
+#             handle.destination = dest
+#             handle.ppr_handle(request)
+#             handle.create_records(request)
+#         return HttpResponseRedirect('/se/ppr/')
+#     return render(request, 'se/file_upload_download.html', handle.content)
+#
+#
+# def opr(request):
+#     """
+#     移除excel、word编辑限制
+#     :param request:
+#     :return:
+#     """
+#     handle = UploadHandle('officepasswdremove')
+#     if request.method == 'POST':
+#         for dest in handle.uploadfile(request):
+#             handle.destination = dest
+#             handle.opr_handle(request)
+#             handle.create_records(request)
+#         return HttpResponseRedirect('/se/opr/')
+#     return render(request, 'se/file_upload_download.html', handle.content)
 
-    def __init__(self, appname):
-        self.appname = appname  # appname，文件上传到media下的子目录名/数据库appname字段
-        self.sql_datas = Records.objects.filter(appname=self.appname).order_by('-timestamp')  # 数据库data
-        self.content = {'datas': self.sql_datas, 'appname': self.appname}  # render到前端的数据
-        self.destination = ''  # 上传文件的绝对路径，会由后续函数更新
-        self.new_ext = ''  # 处理后新文件的扩展名，为了重命名fileout，会由后续函数更新
 
-    def uploadfile(self, request):
-        """
-        简单文件上传，通过with open保存。
-        <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="upf" >
-        <input type="submit">
-        </form>
-        :param request:
-        :return:
-        """
-        destinations = []
-        files = request.FILES.getlist('upf')
-        for upf in files:
-            with open(destination := os.path.join(settings.MEDIA_ROOT, self.appname, upf.name), 'wb+') as f:
-                for chuck in upf.chunks():
+def uploadhandle(request):
+    """
+    文件上传后处理并返回新文件，这些网页的视图。
+    :param request:
+    :return:
+    """
+    if request.method == 'POST':
+        key = list(request.FILES.keys())[0]  # 获取前端表单<input type=file>标签传过来的name属性.
+        files = request.FILES.getlist(key)
+        for file in files:
+            # savefile
+            with open(destination := os.path.join(settings.MEDIA_ROOT, file.name), 'wb+') as f:
+                for chuck in file.chunks():
                     f.write(chuck)
-            destinations.append(destination)
-        return destinations
 
-    def ptc_handle(self, request):
-        """
-        处理上传的文件
-        :param request:
-        :return:
-        """
-        from se.single import pdf_to_csv
-        pdf_to_csv.transe(self.destination)
-        self.new_ext = '.csv'
+            # dosomethingwithfile
+            if key == 'ptc':
+                from se.single import pdf_to_csv
+                outputname = pdf_to_csv.transe(destination)
+            elif key == 'ptw':
+                from se.single import pdf_to_word
+                outputname = pdf_to_word.convert(destination)
+            elif key == 'ppr':
+                from se.single import pdfpasswdremover
+                outputname = pdfpasswdremover.unlock(destination)
+            elif key == 'epr':
+                from se.single import excel去加密 as epr
+                outputname = epr.run(destination)
+            elif key == 'wpr':
+                from se.single import word去加密 as wpr
+                outputname = wpr.run(destination)
 
-    def ptw_handle(self, request):
-        from se.single import pdf_to_word
-        pdf_to_word.convert(self.destination)
-        self.new_ext = '.docx'
+            # createrecord
+            Records.objects.create(
+                filein=file.name,
+                fileout=outputname,
+                timestamp=timezone.now(),
+                ip=get_ip(request),
+                appname=key
+            )
+        return HttpResponseRedirect('/se/test/')
 
-    def ppr_handle(self, request):
-        from se.single import pdfpasswdremover
-        pdfpasswdremover.unlock_cover(self.destination)
-        self.new_ext = '.pdf'
-
-    def opr_handle(self, request):
-        if self.destination.lower().endswith(('.xls', '.xlsx')):
-            from se.single import excel去加密 as epr
-            epr.run(self.destination)
-            self.new_ext = '.xlsx'
-        elif self.destination.lower().endswith(('.doc', '.docx')):
-            from se.single import word去加密 as wpr
-            wpr.run(self.destination)
-            self.new_ext = '.docx'
-
-    def create_records(self, request):
-        Records.objects.create(timestamp=timezone.now(),
-                               filein=(filein := os.path.split(self.destination)[-1]),
-                               fileout=filein.split('.')[0] + self.new_ext,
-                               ip=get_ip(request),
-                               appname=self.appname
-                               )
-
-
-def ptc(request):
-    """
-    pdf转csv页面
-    """
-    handle = UploadHandle('pdftocsv')
-    if request.method == 'POST':
-        # pdf转csv提交按钮
-        # 已合并至ptc()，先前作为提交按钮的view函数，现在提交按钮也定位到ptc(), 根据request.method判断。
-        for dest in handle.uploadfile(request):
-            handle.destination = dest
-            handle.ptc_handle(request)
-            handle.create_records(request)
-            # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-            # messages.info(request, content)
-        return HttpResponseRedirect('/se/ptc/')
-    return render(request, 'se/file_upload_download.html', handle.content)
-
-
-def ptw(request):
-    """
-    pdf转word页面
-    """
-    handle = UploadHandle('pdftoword')
-    if request.method == 'POST':
-        for dest in handle.uploadfile(request):
-            handle.destination = dest
-            handle.ptw_handle(request)
-            handle.create_records(request)
-        return HttpResponseRedirect('/se/ptw/')
-    return render(request, 'se/file_upload_download.html', handle.content)
-
-
-def ppr(request):
-    """
-    移除pdf编辑限制的密码
-    :param request:
-    :return:
-    """
-    handle = UploadHandle('pdfpasswdremove')
-    if request.method == 'POST':
-        for dest in handle.uploadfile(request):
-            handle.destination = dest
-            handle.ppr_handle(request)
-            handle.create_records(request)
-        return HttpResponseRedirect('/se/ppr/')
-    return render(request, 'se/file_upload_download.html', handle.content)
-
-
-def opr(request):
-    """
-    移除excel、word编辑限制
-    :param request:
-    :return:
-    """
-    handle = UploadHandle('officepasswdremove')
-    if request.method == 'POST':
-        for dest in handle.uploadfile(request):
-            handle.destination = dest
-            handle.opr_handle(request)
-            handle.create_records(request)
-        return HttpResponseRedirect('/se/opr/')
-    return render(request, 'se/file_upload_download.html', handle.content)
+    queryset = Records.objects.all().order_by('-timestamp')
+    context = {'datas': queryset, 'navname': 'uploadhandle'}
+    return render(request, 'se/uploadhandle.html', context)
 
 
 def sl(request):
@@ -327,16 +375,51 @@ def airport(request):
             ['pri', '点位', '日期', '分析员', 'n1', 'n2', 'n3', 'n总', 'lepnb', 'lwecpn', '背景', '记录时间'])
         writer.writerows(queryset.values_list())
         return response
+    if 'checkformatting' in request.POST:  # 检查格式
+        from se.机场噪声_2021虹桥 import 检查格式_RE as ck
+        table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
+        return HttpResponse(table)
     return render(request, 'se/airport.html', {'queryset': queryset, 'appname': 'airport'})
 
 
-def check_airport(request):
-    from se.机场噪声_2021虹桥 import 检查格式_RE as ck
-    if request.method == 'POST':
-        table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
-        return render(request, 'se/ck.html', {'table': table}, )
-    return render(request, 'se/ck.html')
-
-
 def test(request):
-    return JsonResponse(1)
+    if request.method == 'POST':
+        key = list(request.FILES.keys())[0]  # 获取前端表单<input type=file>标签传过来的name属性.
+
+        files = request.FILES.getlist(key)
+        for file in files:
+            # savefile
+            with open(destination := os.path.join(settings.MEDIA_ROOT, file.name), 'wb+') as f:
+                for chuck in file.chunks():
+                    f.write(chuck)
+
+            # dosomethingwithfile
+            if key == 'ptc':
+                from se.single import pdf_to_csv
+                outputname = pdf_to_csv.transe(destination)
+            elif key == 'ptw':
+                from se.single import pdf_to_word
+                outputname = pdf_to_word.convert(destination)
+            elif key == 'ppr':
+                from se.single import pdfpasswdremover
+                outputname = pdfpasswdremover.unlock(destination)
+            elif key == 'epr':
+                from se.single import excel去加密 as epr
+                outputname = epr.run(destination)
+            elif key == 'wpr':
+                from se.single import word去加密 as wpr
+                outputname = wpr.run(destination)
+
+            # createrecord
+            Records.objects.create(
+                filein=file.name,
+                fileout=outputname,
+                timestamp=timezone.now(),
+                ip=get_ip(request),
+                appname=key
+            )
+
+        return HttpResponseRedirect('/se/test/')
+    queryset = Records.objects.all().order_by('-timestamp')
+    context = {'datas': queryset, 'navname': 'uploadhandle'}
+    return render(request, 'se/file_upload_download.html', context)
