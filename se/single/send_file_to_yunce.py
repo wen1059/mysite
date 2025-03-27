@@ -8,11 +8,14 @@ import base64
 import re
 import logging
 import time
+from itertools import zip_longest
 
 import win32clipboard
 import ctypes
 import requests
 import pyperclip
+
+from colored_logging import setup_colored_logging
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -59,26 +62,26 @@ def get_filepaths_from_clickboard():
             pass
 
 
-def clear_clickboard():
-    """
-    清空剪贴板
-    :return:
-    """
-    try:
-        win32clipboard.OpenClipboard()
-        win32clipboard.EmptyClipboard()
-    finally:
-        try:
-            win32clipboard.CloseClipboard()
-        except Exception:
-            pass
-
-
 def init():
     """
     初始化变量，清空剪贴板
     :return:
     """
+
+    def clear_clickboard():
+        """
+        清空剪贴板
+        :return:
+        """
+        try:
+            win32clipboard.OpenClipboard()
+            win32clipboard.EmptyClipboard()
+        finally:
+            try:
+                win32clipboard.CloseClipboard()
+            except Exception:
+                pass
+
     global filepaths, equcode, batchcode, clickboard_text
     filepaths, equcode, batchcode = [], '', ''  # 初始化3个关键变量
     clickboard_text = ''  # 存放clickboard文本，如果发生改变，更新值然后reserch，避免重复检测。
@@ -161,17 +164,12 @@ def printinstructions():
 ||  ||      ||  ||    ||    ||  ||  ||||||    ||||  ||
 ||  ||||||||||  ||  ||||||      ||  ||  ||    ||  ||||
 ||              ||    ||  ||||  ||  ||||  ||||||    ||
-||||||||||||||||||||||||||||||||||||||||||||||||||||||
-'''
-    print(qrcode)
-    print("坤坤谱图上传助手V1.0\n"
-          "支持系统：Windows 10/11\n"
-          "windows10下鼠标左键暂停程序，右键恢复程序，windows11不受影响。\n"
-          "KunKun is my idol and I am an IKUN.\n"
-          "Let's use KunKun_upload_tool instead of YunCeApp.\n")
-    print('使用说明：\n'
-          '1、在分析录入页面Ctrl+A，Ctrl+C复制所有文字;\n'
-          '2、复制要上传的谱图文件（可多选），文件会自动上传。\n')
+||||||||||||||||||||||||||||||||||||||||||||||||||||||'''
+    info = ('坤坤谱图上传助手V1.1\nKunKun is my idol and I am an IKUN.\nLet\'s use KunKun_upload_tool instead of YunCeApp.\n\n'
+            '使用说明：\n1. 在分析录入页面Ctrl+A，Ctrl+C复制所有文字.\n2. 复制要上传的谱图文件（可多选）.\n3. 就这样，文件会自动上传.')
+    instruction = '\n'.join(
+        [i + ' ' * 2 + j if j else i for i, j in zip_longest(qrcode.splitlines(), info.split('\n'))])
+    print(instruction)
 
 
 def disable_quickedit():
@@ -181,23 +179,20 @@ def disable_quickedit():
     """
     # 获取控制台输入输出的句柄
     kernel32 = ctypes.windll.kernel32
-
     # 获取标准输入句柄
     stdin_handle = kernel32.GetStdHandle(-10)  # -10 表示标准输入
-
     # 获取当前控制台输入模式
     mode = ctypes.c_uint32()
     kernel32.GetConsoleMode(stdin_handle, ctypes.byref(mode))
-
     # 关闭快速编辑模式（0x0040是表示快速编辑模式的标志）
     new_mode = mode.value & ~0x0040  # 清除快速编辑模式的标志
-
     # 设置新的控制台模式
     kernel32.SetConsoleMode(stdin_handle, new_mode)
 
 
 if __name__ == '__main__':
-    # disable_quickedit()
+    setup_colored_logging()
+    disable_quickedit()
     printinstructions()
     global filepaths, equcode, batchcode, clickboard_text
     init()

@@ -6,55 +6,45 @@ import sys
 from glob import glob
 
 
-def words2pdf(words: list[str], rename=False):
+def word2pdf(word):
     """
     word转pdf
-    :param rename:
-    :param words: 文件绝对路径的列表
+    :param word:
     :return:
     """
     app = gencache.EnsureDispatch('Word.Application')
-    for word in words:
-        file = app.Documents.Open(word, ReadOnly=1)
-        file.ExportAsFixedFormat(OutputFileName=word.replace('.docx', '.pdf').replace('.doc', '.pdf'),
-                                 ExportFormat=constants.wdExportFormatPDF)
-        file.Close()
-        if rename:
-            os.rename(word, word + '.bak')
+    file = app.Documents.Open(word, ReadOnly=1)
+    file.ExportAsFixedFormat(OutputFileName=word.replace('.docx', '.pdf').replace('.doc', '.pdf'),
+                             ExportFormat=constants.wdExportFormatPDF)
+    file.Close()
     app.Quit()
 
 
-def excels2pdf(xlss: list[str], rename=False):
+def excel2pdf(xls):
     """
     excel转pdf
-    :param xlss:
+    :param xls:
     :return:
     """
     app = gencache.EnsureDispatch('Excel.Application')
-    for xls in xlss:
-        file = app.Workbooks.Open(xls, ReadOnly=1)
-        file.ExportAsFixedFormat(Type=constants.xlTypePDF,  # excel和word参数名称和排序不一样，可录制宏查看
-                                 Filename=xls.replace('.xlsx', '.pdf').replace('.xls', '.pdf'))
-        file.Close()
-        if rename:
-            os.rename(xls, xls + '.bak')
+    file = app.Workbooks.Open(xls, ReadOnly=1)
+    file.ExportAsFixedFormat(Type=constants.xlTypePDF,  # excel和word参数名称和排序不一样，可录制宏查看
+                             Filename=xls.replace('.xlsx', '.pdf').replace('.xls', '.pdf'))
+    file.Close()
     app.Quit()
 
 
 def findfiles(path):
-    os.chdir(path)
-    officefile = {'words': [], 'excels': []}
     for root, _, files in os.walk(path):
         for file in files:
-            if file.lower().endswith(('.docx', '.doc')):
-                officefile['words'].append(os.path.abspath(file))
-            elif file.lower().endswith(('.xlsx', '.xls')):
-                officefile['excels'].append(os.path.abspath(file))
-    return officefile
+            yield os.path.join(root,file)
 
 
 if __name__ == '__main__':
-    # ofs = findfiles(r"C:\Users\Administrator\Desktop\学校相关\二年级\2A期末练习")
-    ofs = findfiles(os.getcwd())
-    words2pdf(ofs['words'])
-    excels2pdf(ofs['excels'])
+    # files = findfiles(r"C:\Users\Administrator\Desktop\学校相关\二年级\2A期末练习")
+    files = sys.argv[1:]
+    for file in files:
+        if file.lower().endswith(('.docx', '.doc')):
+            word2pdf(file)
+        elif file.lower().endswith(('.xlsx', '.xls')):
+            excel2pdf(file)

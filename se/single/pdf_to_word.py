@@ -28,4 +28,4 @@ def findpdfs(path):
 if __name__ == '__main__':
     # for file in findpdfs(r'C:\Users\Administrator\Desktop\新建文件夹 (3)'):
     #     convert(file)
-    convert(r"C:\Users\Administrator\Documents\WeChat Files\wxid_l30992hnzgxe21\FileStorage\File\2024-02\Shimudzu MRM 筛查结果.pdf")
+    convert(r"C:\Users\Administrator\Documents\xwechat_files\wxid_l30992hnzgxe21_5a2c\msg\file\2025-03\EP11.0 Nitrogen 1247E(1).pdf")

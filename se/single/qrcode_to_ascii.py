@@ -51,6 +51,6 @@ def save_ascii_text(text):
 if __name__ == '__main__':
     imageobj = gen_qrcode(r'http://10.1.224.117/')
     asc_txt = trans_to_ascii(imageobj)
-    save_ascii_text(asc_txt)
+    # save_ascii_text(asc_txt)
     print(asc_txt)
     os.system('pause')

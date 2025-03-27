@@ -1,7 +1,10 @@
 import traceback
 import xlwings
+import sys
+
 try:
-    file = xlwings.books.active
+    app = xlwings.App(visible=False, add_book=False)
+    file = app.books.open(sys.argv[1])
     # sheet:xlwings.main.Sheet
     for sheet in file.sheets:
         # sheetname改大写
@@ -23,6 +26,8 @@ try:
     #     fpx2 = px2.range('f1:f150').options(transpose=True).value
     #     px.range('f1:f150').options(transpose=True).value = [
     #         (i + j) / 2 if (isinstance(i, float) and isinstance(j, float)) else i for i, j in zip(fpx1, fpx2)]
+    file.save()
+    app.quit()
 except Exception:
     traceback.print_exc()
     input()
