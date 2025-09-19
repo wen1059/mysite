@@ -40,4 +40,5 @@ def showcheckresult(walkpath):
         df = check(file)
         if not df.empty:
             df_all = pd.concat([df_all, df])
+        os.remove(file)
     return df_all.to_html()

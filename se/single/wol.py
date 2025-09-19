@@ -107,4 +107,4 @@ def main(argv: Optional[List[str]] = None) -> None:
 
 if __name__ == "__main__":  # pragma: nocover
     # main()
-    send_magic_packet('C8-EB-BF-6F-4C-F4')
+    send_magic_packet('70-70-FC-01-30-C7')

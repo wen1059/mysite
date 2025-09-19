@@ -35,7 +35,7 @@ X     `-.....-------./ /
             })
                 .then(response => response.json())
                 .then(data => {
-                    const txts = data.txt; // 从后端返回的数据中提取文本
+                    const txts = data.txts; // 从后端返回的数据中提取文本
                     let i = 0;
                     let intv = setInterval(function () {
                         if (i >= txts.length - 1) {

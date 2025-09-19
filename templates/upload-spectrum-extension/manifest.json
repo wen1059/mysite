@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "坤坤谱图上传助手",
+  "version": "1.0",
+  "description": "提取批次设备信息并上传文件. KunKun is my idol and I am an IKUN. Let's use KunKun_upload_tool instead of YunCeApp.",
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "contextMenus",
+    "scripting",
+    "activeTab",
+    "fileSystem"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://10.1.31.200:8000/AppModules/Analyse/AnasyleV2.aspx*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true
+    }
+  ],
+  "host_permissions": [
+    "http://10.1.31.200:8000/*"
+  ]
+}
+

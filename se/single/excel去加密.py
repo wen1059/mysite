@@ -106,5 +106,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         file = sys.argv[1]
     else:
-        file = r"C:\Users\Administrator\Documents\WeChat Files\wxid_l30992hnzgxe21\FileStorage\File\2023-05\现场考核项目表-谢争(1).xls"
+        file = r"C:\Users\Administrator\Documents\xwechat_files\wxid_l30992hnzgxe21_5a2c\msg\file\2025-08\设备清单(更新至复证).xls"
     run(file)

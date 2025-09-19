@@ -49,6 +49,25 @@ def upload_file_by_modelform(request, appname):
         return [file.name for file in files]  # 上传的原文件名列表
 
 
+def simple_upload_file(request):
+    """
+    简单文件上传。with open方式保存
+    :param request:
+    :return:
+    """
+    destinations = []
+    if request.method == 'POST':
+        key = list(request.FILES.keys())[0]  # 获取前端表单<input type="file">标签传过来的name属性.
+        files = request.FILES.getlist(key)
+        for file in files:
+            # savefile
+            with open(destination := os.path.join(settings.MEDIA_ROOT, file.name), 'wb+') as f:
+                for chuck in file.chunks():
+                    f.write(chuck)
+                destinations.append(destination)
+    return destinations
+
+
 def index_main(request):
     """
     主域名跳转到指定页面
@@ -70,8 +89,8 @@ def badapple(request):
             ]
             with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
                 frametxts = f.read().split('\t')
-            txt = {'txt': frametxts[40:]}  # 跳过前40帧
-            return JsonResponse(txt)  # 改为全部帧传到前端js控制播放
+            txts = {'txts': frametxts[40:]}  # 跳过前40帧
+            return JsonResponse(txts)  # 改为全部帧传到前端js控制播放
     return render(request, 'se/badapple.html', {'appname': 'badapple'})
 
 
@@ -259,7 +278,7 @@ def uploadhandle(request):
     :return:
     """
     if request.method == 'POST':
-        key = list(request.FILES.keys())[0]  # 获取前端表单<input type=file>标签传过来的name属性.
+        key = list(request.FILES.keys())[0]  # 获取前端表单<input type="file">标签传过来的name属性.
         files = request.FILES.getlist(key)
         for file in files:
             # savefile
@@ -292,7 +311,7 @@ def uploadhandle(request):
                 ip=get_ip(request),
                 appname=key
             )
-        return HttpResponseRedirect('/se/test/')
+        return HttpResponseRedirect('/se/uph/')
 
     queryset = Records.objects.all().order_by('-timestamp')
     context = {'datas': queryset, 'navname': 'uploadhandle'}

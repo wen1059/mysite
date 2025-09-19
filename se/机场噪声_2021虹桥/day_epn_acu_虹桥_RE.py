@@ -8,15 +8,14 @@
 import math
 import os
 import re
-
-import numpy as np
-import psycopg2
-import pandas as pd
 # import xlwings #改用pandas读取
 import time
-import shutil
 import traceback
 from decimal import Decimal
+
+import numpy as np
+import pandas as pd
+import psycopg2
 
 
 # from xlwings.main import Book, Sheet
@@ -40,34 +39,37 @@ class Mysqldb:
         :return:
         """
         sql = '''
-            CREATE TABLE `day虹桥` (
-              `pri` int NOT NULL AUTO_INCREMENT,
-              `点位` varchar(255) DEFAULT NULL,
-              `日期` varchar(255) DEFAULT NULL,
-              `分析员` varchar(255) DEFAULT NULL,
-              `N1` int DEFAULT NULL,
-              `N2` int DEFAULT NULL,
-              `N3` int DEFAULT NULL,
-              `N总` int DEFAULT NULL,
-              `Lamaxpb` float(255,1) DEFAULT NULL,
-              `Lwecpn` float(255,1) DEFAULT NULL,
-              `N1_10` int DEFAULT NULL,
-              `N2_10` int DEFAULT NULL,
-              `N3_10` int DEFAULT NULL,
-              `N总_10` int DEFAULT NULL,
-              `Lamaxpb_10` float(255,1) DEFAULT NULL,
-              `Lwecpn_10` float(255,1) DEFAULT NULL,
-              `N1_20` int DEFAULT NULL,
-              `N2_20` int DEFAULT NULL,
-              `N3_20` int DEFAULT NULL,
-              `N总_20` int DEFAULT NULL,
-              `Lamaxpb_20` float(255,1) DEFAULT NULL,
-              `Lwecpn_20` float(255,1) DEFAULT NULL,
-              `背景` float(255,1) DEFAULT NULL,
-              `记录时间` datetime DEFAULT NULL,
-              PRIMARY KEY (`pri`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=2408 DEFAULT CHARSET=utf8;
-            '''
+              CREATE TABLE `day虹桥`
+              (
+                  `pri`        int NOT NULL AUTO_INCREMENT,
+                  `点位`       varchar(255)  DEFAULT NULL,
+                  `日期`       varchar(255)  DEFAULT NULL,
+                  `分析员`     varchar(255)  DEFAULT NULL,
+                  `N1`         int           DEFAULT NULL,
+                  `N2`         int           DEFAULT NULL,
+                  `N3`         int           DEFAULT NULL,
+                  `N总`        int           DEFAULT NULL,
+                  `Lamaxpb`    float(255, 1) DEFAULT NULL,
+                  `Lwecpn`     float(255, 1) DEFAULT NULL,
+                  `N1_10`      int           DEFAULT NULL,
+                  `N2_10`      int           DEFAULT NULL,
+                  `N3_10`      int           DEFAULT NULL,
+                  `N总_10`     int           DEFAULT NULL,
+                  `Lamaxpb_10` float(255, 1) DEFAULT NULL,
+                  `Lwecpn_10`  float(255, 1) DEFAULT NULL,
+                  `N1_20`      int           DEFAULT NULL,
+                  `N2_20`      int           DEFAULT NULL,
+                  `N3_20`      int           DEFAULT NULL,
+                  `N总_20`     int           DEFAULT NULL,
+                  `Lamaxpb_20` float(255, 1) DEFAULT NULL,
+                  `Lwecpn_20`  float(255, 1) DEFAULT NULL,
+                  `背景`       float(255, 1) DEFAULT NULL,
+                  `记录时间`   datetime      DEFAULT NULL,
+                  PRIMARY KEY (`pri`)
+              ) ENGINE = InnoDB
+                AUTO_INCREMENT = 2408
+                DEFAULT CHARSET = utf8; \
+              '''
         self.curse.execute(sql)
         self.con.commit()
 
@@ -483,8 +485,8 @@ def cal_oneday_week(walkpath):
             # for i in hb_day_all:  # 周计算新加语句
             #     hb_week_all[i] += hb_day_all[i] / 7  # 周计算新加语句
         except Exception as e:
-            print(time.ctime(), file24name)
-            traceback.print_exc()
+            # print(time.ctime(), file24name)
+            # traceback.print_exc()
             # 根据表做调整，不然写不到表里
             yield (dianwei, date, fx_name) + (-1,) * 25
     # # ------------------

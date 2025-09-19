@@ -2,6 +2,7 @@
 {#base模板加上拖拽上传框#}
 {% block title %}{% endblock title %}
 {% block other_base %}
+
     <!-- 使用 Bootstrap 的 form-select 下拉菜单 -->
     <div class="mb-3 input-group">
         <label for="modeSelect" class="input-group-text">选择模式：</label>
@@ -14,13 +15,7 @@
         </select>
     </div>
 
-    <form class="mb-3" method="post" enctype="multipart/form-data" id="uploadForm">
-        {% csrf_token %}
-        <div id="dropZone" style="border: 2px dashed #007bff; padding: 50px; cursor: pointer;">
-            拖拽文件到这里
-        </div>
-        <input type="file" name="will_be_changed" id="fileInput" style="display: none;" multiple>
-    </form>
+    {% include "se/uploadform.html" %}
 
     <table class="table table-hover">
         <thead class="table-success">
@@ -41,46 +36,4 @@
         </tbody>
     </table>
 
-    <script>
-        // 设置 input 的 name 属性
-        function setInputName() {
-            const fileInput = document.getElementById('fileInput');
-            // 根据选择的模式设置 name 属性
-            fileInput.name = document.getElementById('modeSelect').value;
-        }
-
-        // 文件拖拽框
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-
-        // 点击拖拽区域时，模拟点击文件输入元素
-        dropZone.addEventListener('click', () => {
-            fileInput.click();
-        });
-        // 处理文件选择对话框中的文件
-        fileInput.addEventListener('change', () => {
-            setInputName(); // 设置 input 的 name
-            showprogress()
-            document.getElementById('uploadForm').submit(); // 提交表单
-        });
-
-        // 当文件被拖拽到拖拽区域上方时，防止默认行为并改变背景色
-        dropZone.addEventListener('dragover', (event) => {
-            event.preventDefault();
-            dropZone.style.backgroundColor = '#e9ecef';
-        });
-        // 当文件离开拖拽区域时，恢复背景色
-        dropZone.addEventListener('dragleave', (event) => {
-            event.preventDefault();
-            dropZone.style.backgroundColor = '';
-        });
-        // 当文件被释放到拖拽区域时，处理文件上传
-        dropZone.addEventListener('drop', (event) => {
-            event.preventDefault(); // 阻止默认提交行为
-            fileInput.files = event.dataTransfer.files;
-            setInputName(); // 设置 input 的 name
-            showprogress()
-            document.getElementById('uploadForm').submit(); // 提交表单
-        });
-    </script>
 {% endblock other_base %}

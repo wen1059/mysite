@@ -64,7 +64,7 @@ def readpdf(pdffile: str):
         text = ''
         for page in f.pages:
             text += page.extract_text() + '\n'
-            # tables = page.extract_tables() # 提取表格
+            tables = page.extract_tables()  # 提取表格
     return text
 
 
@@ -86,11 +86,12 @@ def writecsv(text, csvfile):
 def transe(pdffile, rename=False):
     if pdffile.lower().endswith('.pdf'):
         text = readpdf(pdffile)
-        writecsv(text, outputname := pdffile.replace(pdffile[-4:], '.csv'))
+        writecsv(text, outputpath := pdffile.replace(pdffile[-4:], '.csv'))
         # print(pdffile)
         if rename:
             os.rename(pdffile, pdffile + '.bak')
-        return outputname
+        return os.path.split(outputpath)[-1]
+
 
 def run(rootpath, recursive=False, rename=False):
     """
@@ -133,7 +134,7 @@ def extract_compunds(pdf_fp):
 
 if __name__ == '__main__':
     # path = os.path.split(os.path.realpath(__file__))[0]
-    path = r"C:\Users\Administrator\Desktop\KB2.pdf"
-    run(path, recursive=False)
-    # print(readpdf(path))
-    print('完成')
+    path = r"C:\Users\Administrator\Documents\xwechat_files\wxid_l30992hnzgxe21_5a2c\msg\file\2025-07\20250708102141(总氮).pdf"
+    # run(path, recursive=False)
+    print(readpdf(path))
+    # print('完成')

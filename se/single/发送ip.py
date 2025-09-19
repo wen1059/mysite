@@ -3,11 +3,11 @@
 """
 每隔5分钟检查一次ip，如果发生变化，发送邮件告知
 """
-import subprocess
 import smtplib
-from email.mime.text import MIMEText
-from email.header import Header
+import subprocess
 import time
+from email.header import Header
+from email.mime.text import MIMEText
 
 
 def getip():
