@@ -15,7 +15,6 @@ import json
 import random
 
 
-# sys.path.extend([r'C:\Users\Administrator\PycharmProjects\se'])
 def get_ip(request):
     """
     获取客户端ip
@@ -121,7 +120,7 @@ def wpcal(request):
         content = {'datas': datas}
         return render(request, 'se/wpcal.html', content)
     elif request.method == 'POST':
-        from se.绩效分值计算 import code_calscore as cocal
+        from ...se.绩效分值计算 import code_calscore as cocal
         starttime = request.POST['start']
         endtime = request.POST['end']
         siotext: str = cocal.main(starttime, endtime)
@@ -288,19 +287,19 @@ def uploadhandle(request):
 
             # dosomethingwithfile
             if key == 'ptc':
-                from se.single import pdf_to_csv
+                from ...se.single import pdf_to_csv
                 outputname = pdf_to_csv.transe(destination)
             elif key == 'ptw':
-                from se.single import pdf_to_word
+                from ...se.single import pdf_to_word
                 outputname = pdf_to_word.convert(destination)
             elif key == 'ppr':
-                from se.single import pdfpasswdremover
+                from ...se.single import pdfpasswdremover
                 outputname = pdfpasswdremover.unlock(destination)
             elif key == 'epr':
-                from se.single import excel去加密 as epr
+                from ...se.single import excel去加密 as epr
                 outputname = epr.run(destination)
             elif key == 'wpr':
-                from se.single import word去加密 as wpr
+                from ...se.single import word去加密 as wpr
                 outputname = wpr.run(destination)
 
             # createrecord
@@ -329,7 +328,7 @@ def sl(request):
         content = {'datas': datas}
         return render(request, 'se/sl.html', content)
     elif request.method == 'POST':
-        from se.single import searchlimsql as sls
+        from ...se.single import searchlimsql as sls
         testno = request.POST['testno']
         projectno = request.POST['projectno']
         filename = f'{testno}_{projectno}.xlsx'
@@ -348,7 +347,7 @@ def drawpic(request):
     :return:
     """
     if request.method == 'POST':
-        from se.single.drawgradient import DrawGradient
+        from ...se.single.drawgradient import DrawGradient
         from io import BytesIO
         import base64
         dg = DrawGradient()
@@ -395,7 +394,7 @@ def airport(request):
         writer.writerows(queryset.values_list())
         return response
     if 'checkformatting' in request.POST:  # 检查格式
-        from se.机场噪声_2021虹桥 import 检查格式_RE as ck
+        from ...se.机场噪声_2021虹桥 import 检查格式_RE as ck
         table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
         return HttpResponse(table)
     return render(request, 'se/airport.html', {'queryset': queryset, 'appname': 'airport'})
