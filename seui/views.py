@@ -16,6 +16,7 @@ import random
 
 sys.path.append(r'C:\Users\Administrator\PycharmProjects')
 
+
 def get_ip(request):
     """
     获取客户端ip
@@ -57,7 +58,8 @@ def simple_upload_file(request):
     """
     destinations = []
     if request.method == 'POST':
-        key = list(request.FILES.keys())[0]  # 获取前端表单<input type="file">标签传过来的name属性.
+        # 获取前端表单<input type="file">标签传过来的name属性.可以直接赋值，此处为了适应前端不同的name值。
+        key = list(request.FILES.keys())[0]
         files = request.FILES.getlist(key)
         for file in files:
             # savefile
@@ -278,38 +280,35 @@ def uploadhandle(request):
     :return:
     """
     if request.method == 'POST':
-        key = list(request.FILES.keys())[0]  # 获取前端表单<input type="file">标签传过来的name属性.
-        files = request.FILES.getlist(key)
-        for file in files:
-            # savefile
-            with open(destination := os.path.join(settings.MEDIA_ROOT, file.name), 'wb+') as f:
-                for chuck in file.chunks():
-                    f.write(chuck)
-
+        mode = request.POST.get('mode')
+        for destination in simple_upload_file(request):
             # dosomethingwithfile
-            if key == 'ptc':
-                from se.single import pdf_to_csv
-                outputname = pdf_to_csv.transe(destination)
-            elif key == 'ptw':
-                from se.single import pdf_to_word
-                outputname = pdf_to_word.convert(destination)
-            elif key == 'ppr':
-                from se.single import pdfpasswdremover
-                outputname = pdfpasswdremover.unlock(destination)
-            elif key == 'epr':
-                from se.single import excel去加密 as epr
-                outputname = epr.run(destination)
-            elif key == 'wpr':
-                from se.single import word去加密 as wpr
-                outputname = wpr.run(destination)
+            match mode:
+                case 'ptc':
+                    from se.single import pdf_to_csv
+                    outputname = pdf_to_csv.transe(destination)
+                case 'ptw':
+                    from se.single import pdf_to_word
+                    outputname = pdf_to_word.convert(destination)
+                case 'ppr':
+                    from se.single import pdfpasswdremover
+                    outputname = pdfpasswdremover.unlock(destination)
+                case 'epr':
+                    from se.single import excel去加密 as epr
+                    outputname = epr.run(destination)
+                case 'wpr':
+                    from se.single import word去加密 as wpr
+                    outputname = wpr.run(destination)
+                case _:
+                    break
 
             # createrecord
             Records.objects.create(
-                filein=file.name,
+                filein=destination.split('\\')[-1],
                 fileout=outputname,
                 timestamp=timezone.now(),
                 ip=get_ip(request),
-                appname=key
+                appname=mode
             )
         return HttpResponseRedirect('/se/uph/')
 

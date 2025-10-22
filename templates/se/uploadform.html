@@ -5,15 +5,17 @@
     <div id="dropZone" style="border: 2px dashed #007bff; padding: 50px; cursor: pointer;">
         拖拽文件到这里
     </div>
-    <input type="file" name="will_be_changed" id="fileInput" style="display: none;" multiple>
+{#    后端通过key的value来判断对文件的操作#}
+    <label for="mode"><input type="text" name="mode" id="mode" value="will_be_changed" style="display: none"></label>
+    <input type="file" name="uploadfiles" id="fileInput" style="display: none;" multiple>
 </form>
 
 <script>
     // 设置 input 的 name 属性
-    function setInputName() {
-        const fileInput = document.getElementById('fileInput');
+    function setmodevalue() {
+        const mode = document.getElementById('mode');
         // 根据选择的模式设置 name 属性
-        fileInput.name = document.getElementById('modeSelect').value;
+        mode.value = document.getElementById('modeSelect').value;
     }
 
     // 文件拖拽框
@@ -26,7 +28,7 @@
     });
     // 处理文件选择对话框中的文件
     fileInput.addEventListener('change', () => {
-        setInputName(); // 设置 input 的 name
+        setmodevalue(); // 设置 input 的 name
         showprogress()
         document.getElementById('uploadForm').submit(); // 提交表单
     });
@@ -45,7 +47,7 @@
     dropZone.addEventListener('drop', (event) => {
         event.preventDefault(); // 阻止默认提交行为
         fileInput.files = event.dataTransfer.files;
-        setInputName(); // 设置 input 的 name
+        setmodevalue(); // 设置 input 的 name
         showprogress()
         document.getElementById('uploadForm').submit(); // 提交表单
     });

@@ -24,6 +24,14 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
 
     path('', views.index_main),
-    path('se/', include('seui.urls', namespace='seui')),
+    # path('se/', include('seui.urls', namespace='seui')),
+    path('se/test/', views.test, name='test'),
+    path('se/badapple/', views.badapple, name='badapple'),
+    # path('wpscore/', views.wpscore, name='wpscore'),  # 绩效分值
+    # path('wpcal/', views.wpcal, name='wpcal'),  # 绩效计算
+    path('se/uph/', views.uploadhandle, name='uploadhandle'),
+    # path('sl/', views.sl, name='sl'),  # 生成lims谱图通用模板
+    # path('dp/', views.drawpic, name='dp'),  # 绘制渐变图
+    path('se/ap/', views.airport, name='ap'),  # 机场噪声查询
 
 ]
