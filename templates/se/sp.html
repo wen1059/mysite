@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_simple.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+</head>
+<body>
+<div id="data-table"></div>
+
+<script>
+    // ============== 配置区（只需修改这里）==============
+
+    // 1. 你的API地址
+    const API_URL = 'http://10.1.224.117/se/sp/api/';
+
+    // 2. 表格基础配置（按需修改）
+    const tableConfig = {
+        autoColumns: true,       // ✅ 自动从JSON生成列
+        {#layout: "fitColumns",    // ✅ 自适应宽度#}
+        height: "900px",         // ✅ 固定高度
+        pagination: "local",     // ✅ 分页
+        paginationSize: 5000,      // ✅ 每页15条
+        paginationSizeSelector: [25, 5000],  // ✅ 分页大小选项
+        frozenRows:0, //冻结行
+
+        // 原有居中设置
+        columnDefaults: {
+            headerHozAlign: "center",
+            hozAlign: "center",
+            vertAlign: "middle",
+
+            // 🔥 增加这3行启用筛选
+            headerFilter: true,                    // 启用筛选
+            headerFilterPlaceholder: "筛选...",    // 筛选框提示
+            headerFilterFunc: "like"               // 模糊匹配
+        }
+    };
+
+    // ============== 以下是核心代码（不用改）==============
+
+    // 创建表格
+    const table = new Tabulator("#data-table", tableConfig);
+
+    // 加载数据
+    async function loadData() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            table.setData(data);
+        } catch (error) {
+            console.error('加载数据失败:', error);
+            // 显示错误信息
+            table.setData([{错误: "无法加载数据"}]);
+        }
+    }
+
+    // 页面加载时获取数据
+    window.onload = loadData;
+</script>
+</body>
+</html>

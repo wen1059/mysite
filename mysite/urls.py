@@ -33,5 +33,7 @@ urlpatterns = [
     # path('sl/', views.sl, name='sl'),  # 生成lims谱图通用模板
     # path('dp/', views.drawpic, name='dp'),  # 绘制渐变图
     path('se/ap/', views.airport, name='ap'),  # 机场噪声查询
+    path('se/sp/', views.sp, name='sp'),  # 采样准备
+    path('se/sp/api/', views.sp_api, name='sp'),  # 采样准备表格api
 
 ]

@@ -62,6 +62,9 @@ def simple_upload_file(request):
         key = list(request.FILES.keys())[0]
         files = request.FILES.getlist(key)
         for file in files:
+            # 限制上传文件大小100mb
+            if file.size > 100 * 1024 * 1024:
+                break
             # savefile
             with open(destination := os.path.join(settings.MEDIA_ROOT, file.name), 'wb+') as f:
                 for chuck in file.chunks():
@@ -138,141 +141,6 @@ def wpcal(request):
         return HttpResponseRedirect('/se/wpcal/')
 
 
-# class UploadHandle:
-#     """
-#     文件上传后处理并返回新文件，这些网页的类。
-#     """
-#
-#     def __init__(self, appname):
-#         self.appname = appname  # appname，文件上传到media下的子目录名/数据库appname字段
-#         self.sql_datas = Records.objects.filter(appname=self.appname).order_by('-timestamp')  # 数据库data
-#         self.content = {'datas': self.sql_datas, 'appname': self.appname}  # render到前端的数据
-#         self.destination = ''  # 上传文件的绝对路径，会由后续函数更新
-#         self.new_ext = ''  # 处理后新文件的扩展名，为了重命名fileout，会由后续函数更新
-#
-#     def uploadfile(self, request):
-#         """
-#         简单文件上传，通过with open保存。
-#         <form method="post" enctype="multipart/form-data">
-#         {% csrf_token %}
-#         <input type="file" name="upf" >
-#         <input type="submit">
-#         </form>
-#         :param request:
-#         :return:
-#         """
-#         destinations = []
-#         files = request.FILES.getlist('upf')
-#         for upf in files:
-#             with open(destination := os.path.join(settings.MEDIA_ROOT, self.appname, upf.name), 'wb+') as f:
-#                 for chuck in upf.chunks():
-#                     f.write(chuck)
-#             destinations.append(destination)
-#         return destinations
-#
-#     def ptc_handle(self, request):
-#         """
-#         处理上传的文件
-#         :param request:
-#         :return:
-#         """
-#         from se.single import pdf_to_csv
-#         pdf_to_csv.transe(self.destination)
-#         self.new_ext = '.csv'
-#
-#     def ptw_handle(self, request):
-#         from se.single import pdf_to_word
-#         pdf_to_word.convert(self.destination)
-#         self.new_ext = '.docx'
-#
-#     def ppr_handle(self, request):
-#         from se.single import pdfpasswdremover
-#         pdfpasswdremover.unlock(self.destination)
-#         self.new_ext = '.pdf'
-#
-#     def opr_handle(self, request):
-#         if self.destination.lower().endswith(('.xls', '.xlsx')):
-#             from se.single import excel去加密 as epr
-#             epr.run(self.destination)
-#             self.new_ext = '.xlsx'
-#         elif self.destination.lower().endswith(('.doc', '.docx')):
-#             from se.single import word去加密 as wpr
-#             wpr.run(self.destination)
-#             self.new_ext = '.docx'
-#
-#     def create_records(self, request):
-#         Records.objects.create(timestamp=timezone.now(),
-#                                filein=(filein := os.path.split(self.destination)[-1]),
-#                                fileout=filein.split('.')[0] + self.new_ext,
-#                                ip=get_ip(request),
-#                                appname=self.appname
-#                                )
-#
-#
-# def ptc(request):
-#     """
-#     pdf转csv页面
-#     """
-#     handle = UploadHandle('pdftocsv')
-#     if request.method == 'POST':
-#         # pdf转csv提交按钮
-#         # 已合并至ptc()，先前作为提交按钮的view函数，现在提交按钮也定位到ptc(), 根据request.method判断。
-#         for dest in handle.uploadfile(request):
-#             handle.destination = dest
-#             handle.ptc_handle(request)
-#             handle.create_records(request)
-#             # content = '\n'.join([i for i in pdffiles]) if pdffiles else '没有要转换的文件'
-#             # messages.info(request, content)
-#         return HttpResponseRedirect('/se/ptc/')
-#     return render(request, 'se/file_upload_download.html', handle.content)
-#
-#
-# def ptw(request):
-#     """
-#     pdf转word页面
-#     """
-#     handle = UploadHandle('pdftoword')
-#     if request.method == 'POST':
-#         for dest in handle.uploadfile(request):
-#             handle.destination = dest
-#             handle.ptw_handle(request)
-#             handle.create_records(request)
-#         return HttpResponseRedirect('/se/ptw/')
-#     return render(request, 'se/file_upload_download.html', handle.content)
-#
-#
-# def ppr(request):
-#     """
-#     移除pdf编辑限制的密码
-#     :param request:
-#     :return:
-#     """
-#     handle = UploadHandle('pdfpasswdremove')
-#     if request.method == 'POST':
-#         for dest in handle.uploadfile(request):
-#             handle.destination = dest
-#             handle.ppr_handle(request)
-#             handle.create_records(request)
-#         return HttpResponseRedirect('/se/ppr/')
-#     return render(request, 'se/file_upload_download.html', handle.content)
-#
-#
-# def opr(request):
-#     """
-#     移除excel、word编辑限制
-#     :param request:
-#     :return:
-#     """
-#     handle = UploadHandle('officepasswdremove')
-#     if request.method == 'POST':
-#         for dest in handle.uploadfile(request):
-#             handle.destination = dest
-#             handle.opr_handle(request)
-#             handle.create_records(request)
-#         return HttpResponseRedirect('/se/opr/')
-#     return render(request, 'se/file_upload_download.html', handle.content)
-
-
 def uploadhandle(request):
     """
     文件上传后处理并返回新文件，这些网页的视图。
@@ -300,7 +168,7 @@ def uploadhandle(request):
                     from se.single import word去加密 as wpr
                     outputname = wpr.run(destination)
                 case _:
-                    break
+                    outputname = 'unknown'
 
             # createrecord
             Records.objects.create(
@@ -400,5 +268,15 @@ def airport(request):
     return render(request, 'se/airport.html', {'queryset': queryset, 'appname': 'airport'})
 
 
+def sp(request):
+    return render(request, 'se/sp.html', {'appname': 'sp'})
+
+
+def sp_api(request):
+    from se.single import yunce_SamplingPreparation as ycsp
+    jsonresult = ycsp.getjson()
+    return JsonResponse(jsonresult, safe=False, json_dumps_params={'ensure_ascii': False})
+
+
 def test(request):
-    return HttpResponse(1)
+    return HttpResponse('1')
