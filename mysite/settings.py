@@ -43,12 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # 第三方app
-    # 'django_bootstrap5'
 
     # 用户app
-    # 'blog',
-    # 'learning_logs',
-    # 'work_performance',
     'seui'
 
 ]

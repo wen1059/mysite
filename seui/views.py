@@ -1,17 +1,15 @@
-import csv
-import os.path
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.utils import timezone
-from mysite import settings
-from seui.models import *
 from django.contrib import messages
 from django.views.decorators.gzip import gzip_page
-import time
+from mysite import settings
+from seui.models import *
+
+import csv
+import os.path
 from datetime import datetime, timedelta
 import sys
-import shutil
-import json
 import random
 
 sys.path.append(r'C:\Users\Administrator\PycharmProjects')
@@ -77,26 +75,33 @@ def index_main(request):
     """
     主域名跳转到指定页面
     """
-    return HttpResponseRedirect('/se/badapple/')
+    return HttpResponseRedirect('/showcode/')
 
 
-@gzip_page  # response采用gzip压缩后传到前端
+def showcode(request):
+    with open(r"C:\Users\Administrator\PycharmProjects\se\single\send_file_to_yunce.py", encoding='utf8') as f:
+        code = f.read()
+    return render(request, 'showcode.html', {'code': code})
+
+
 def badapple(request):
     """
     播放字符画视频，
     1、先视频转字符画保存在一个txt，2、读取txt返回json（value为数组）到前端，3、前端js依次读取数组显示。
     """
-    if request.method == 'POST':
-        if 'frameindex' in (body := json.loads(request.body)):
-            randomlist = [
-                'badapple',
-                '鸡你太美',
-            ]
-            with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', f'{random.choice(randomlist)}.txt')) as f:
-                frametxts = f.read().split('\t')
-            txts = {'txts': frametxts[40:]}  # 跳过前40帧
-            return JsonResponse(txts)  # 改为全部帧传到前端js控制播放
-    return render(request, 'se/badapple.html', {'appname': 'badapple'})
+    return render(request, 'badapple.html')
+
+
+@gzip_page  # response采用gzip压缩后传到前端
+def badapple_api(request):
+    randomlist = [
+        'badapple.txt',
+        '鸡你太美.txt',
+    ]
+    with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', random.choice(randomlist))) as f:
+        frametxts = f.read().split('\t')
+    txts = {'txts': frametxts[40:]}  # 跳过前40帧
+    return JsonResponse(txts)  # 改为全部帧传到前端js控制播放
 
 
 def wpscore(request):
@@ -109,12 +114,12 @@ def wpscore(request):
         form = ScoresForm()
         data = Scores.objects.order_by('-测试代码')
         content = {'scores': data, 'form': form}
-        return render(request, 'se/wpscore.html', content)
+        return render(request, 'wpscore.html', content)
     elif request.method == 'POST':
         form = ScoresForm(request.POST)
         if form.is_valid():
             form.save()
-    return HttpResponseRedirect('/se/wpscore/')
+    return HttpResponseRedirect('/wpscore/')
 
 
 def wpcal(request):
@@ -124,7 +129,7 @@ def wpcal(request):
     if request.method == 'GET':
         datas = Records.objects.filter(appname='绩效分值计算').order_by('-timestamp')
         content = {'datas': datas}
-        return render(request, 'se/wpcal.html', content)
+        return render(request, 'wpcal.html', content)
     elif request.method == 'POST':
         from se.绩效分值计算 import code_calscore as cocal
         starttime = request.POST['start']
@@ -138,7 +143,7 @@ def wpcal(request):
         Records.objects.create(timestamp=timezone.now(), filein=f'{starttime} / {endtime}', fileout=fileout_f,
                                fileout_f=fileout_f, ip=ip, appname='绩效分值计算')
         messages.info(request, siotext)
-        return HttpResponseRedirect('/se/wpcal/')
+        return HttpResponseRedirect('/wpcal/')
 
 
 def uploadhandle(request):
@@ -178,11 +183,11 @@ def uploadhandle(request):
                 ip=get_ip(request),
                 appname=mode
             )
-        return HttpResponseRedirect('/se/uph/')
+        return HttpResponseRedirect('/uph/')
 
     queryset = Records.objects.all().order_by('-timestamp')
     context = {'datas': queryset, 'navname': 'uploadhandle'}
-    return render(request, 'se/uploadhandle.html', context)
+    return render(request, 'uploadhandle.html', context)
 
 
 def sl(request):
@@ -194,7 +199,7 @@ def sl(request):
     if request.method == 'GET':
         datas = Records.objects.filter(appname='lims查询').order_by('-timestamp')[:30]
         content = {'datas': datas}
-        return render(request, 'se/sl.html', content)
+        return render(request, 'sl.html', content)
     elif request.method == 'POST':
         from se.single import searchlimsql as sls
         testno = request.POST['testno']
@@ -205,7 +210,7 @@ def sl(request):
         ip = get_ip(request)
         Records.objects.create(timestamp=timezone.now(), filein=f'{testno} - {projectno}', fileout=filename,
                                fileout_f=filename, ip=ip, appname='lims查询')
-        return HttpResponseRedirect('/se/sl/')
+        return HttpResponseRedirect('/sl/')
 
 
 def drawpic(request):
@@ -215,7 +220,7 @@ def drawpic(request):
     :return:
     """
     if request.method == 'POST':
-        from ...se.single.drawgradient import DrawGradient
+        from se.single.drawgradient import DrawGradient
         from io import BytesIO
         import base64
         dg = DrawGradient()
@@ -225,9 +230,9 @@ def drawpic(request):
         buffer = BytesIO()
         dg.im.save(buffer, 'png')
         buffer.seek(0)
-        return render(request, 'se/drawpic.html',
+        return render(request, 'drawpic.html',
                       {'img': base64.encodebytes(buffer.read()).decode(), 'appname': 'drawpic'})
-    return render(request, 'se/drawpic.html', {'appname': 'drawpic'})
+    return render(request, 'drawpic.html')
 
 
 def airport(request):
@@ -238,38 +243,16 @@ def airport(request):
     """
     if 'cleartab' in request.POST:  # 清空数据库
         Airport.objects.all().delete()
-
-    if pri := request.GET.get('del'):  # 删除某一行
-        Airport.objects.filter(pri=pri).delete()
-
-    queryset = Airport.objects.all().order_by('-cal_date')
-    # 按条件筛选
-    if position := request.GET.get('position'):
-        queryset = queryset.filter(position__contains=position)
-    if acq_date := request.GET.get('acq_date'):
-        queryset = queryset.filter(acq_date__contains=acq_date)
-    if cal_date := request.GET.get('cal_date'):
-        queryset = queryset.filter(cal_date__range=[cal_date, (
-                datetime.strptime(cal_date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d')])
-
-    if 'export' in request.GET:  # 导出csv
-        response = HttpResponse(content_type='text/csv;charset=gbk',
-                                headers={"Content-Disposition": 'attachment; filename="export.csv"'},
-                                )
-        writer = csv.writer(response)
-        writer.writerow(
-            ['pri', '点位', '日期', '分析员', 'n1', 'n2', 'n3', 'n总', 'lepnb', 'lwecpn', '背景', '记录时间'])
-        writer.writerows(queryset.values_list())
-        return response
     if 'checkformatting' in request.POST:  # 检查格式
         from se.机场噪声_2021虹桥 import 检查格式_RE as ck
         table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
         return HttpResponse(table)
-    return render(request, 'se/airport.html', {'queryset': queryset, 'appname': 'airport'})
+    queryset = Airport.objects.all().order_by('-cal_date')
+    return render(request, 'airport.html', {'queryset': queryset})
 
 
 def sp(request):
-    return render(request, 'se/sp.html', {'appname': 'sp'})
+    return render(request, 'sp.html')
 
 
 def sp_api(request):
