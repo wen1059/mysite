@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block other_base %}
+    <pre style="color: indigo; font-size: 12px; text-align: center" id="txt">
+        <div class="spinner-border text-primary"></div>
+                        _
+                       | \
+                       | |
+                       | |
+  |\                   | |
+ /, ~\                / /
+X     `-.....-------./ /
+ ~-. ~  ~              |
+    \             /    |
+     \  /_     ___\   /
+     | /\ ~~~~~   \ |
+     | | \        || |
+     | |\ \       || )
+    (_/ (_/      ((_/
+    </pre>
+    <script>
+        async function loadData() {
+            const response = await fetch('/badapple/api/');
+            const data = await response.json();
+            const txts = data.txts;
+
+            let i = 0;
+            const intv = setInterval(function () {
+                document.getElementById('txt').innerText = txts[i];
+                i++;
+                if (i >= txts.length) {
+                    clearInterval(intv);
+                }
+            }, 1000 / 30);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+{% endblock other_base %}

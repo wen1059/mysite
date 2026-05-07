@@ -18,24 +18,23 @@ from django.urls import path, include, re_path
 from seui import views
 from mysite import settings
 from django.views.static import serve
+from django.http import HttpResponse
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
     # path('admin/', admin.site.urls),
+    # path('favicon.ico', RedirectView.as_view(url='https://10.1.224.117/static/img/Hornet_Idle.png')),
 
     path('', views.index_main),
-    # path('', include('seui.urls', namespace='seui')),
-    path('test/', views.test, name='test'),
-    path('badapple/', views.badapple, name='badapple'),
-    path('badapple_api/', views.badapple_api),
+    path('test/', views.test),
+    path('test/api/', views.test_api),
+    path('badapple/', views.badapple),
+    path('badapple/api/', views.badapple_api),
     path('showcode/', views.showcode),
-    # path('wpscore/', views.wpscore, name='wpscore'),  # 绩效分值
-    # path('wpcal/', views.wpcal, name='wpcal'),  # 绩效计算
-    path('uph/', views.uploadhandle, name='uploadhandle'),
-    # path('sl/', views.sl, name='sl'),  # 生成lims谱图通用模板
-    # path('dp/', views.drawpic, name='dp'),  # 绘制渐变图
-    path('ap/', views.airport, name='ap'),  # 机场噪声查询
-    path('sp/', views.sp, name='sp'),  # 采样准备
+    path('uph/', views.uploadhandle),
+    path('ap/', views.airport),  # 机场噪声查询
+    path('sp/', views.sp),  # 采样准备
     path('sp/api/', views.sp_api),  # 采样准备表格api
 
 ]

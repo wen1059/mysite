@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block other_base %}
+
+    <div id="data-table"></div>
+    <script>
+        const tableConfig = {
+            autoColumns: true,       // ✅ 自动从JSON生成列
+            {#layout: "fitColumns",    // ✅ 自适应宽度#}
+            height: "850px",         // ✅ 固定高度
+            pagination: "local",     // ✅ 分页
+            paginationSize: 5000,      // ✅ 每页15条
+            paginationSizeSelector: [25, 5000],  // ✅ 分页大小选项
+            frozenRows: 0, //冻结行
+            placeholder: "加载中...",  // 数据加载前显示的文本
+            columnDefaults: {
+                headerHozAlign: "center",                // 居中设置
+                hozAlign: "center",
+                vertAlign: "middle",
+                headerFilter: true,                    // 启用筛选
+                headerFilterPlaceholder: "筛选...",    // 筛选框提示
+                headerFilterFunc: "like"               // 模糊匹配
+            }
+        };
+        const table = new Tabulator("#data-table", tableConfig);
+
+        async function loadData() {
+            try {
+                const response = await fetch('/test/api/');
+                const data = await response.json();
+                table.setData(data);
+            } catch (error) {
+                console.log(error)
+                table.setData([{错误: "无法加载数据"}]);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+
+{% endblock other_base %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block other_base %}
+    <div class="container mt-2">
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between align-items-center">
+                <button type="submit" name="cleartab" class="btn btn-outline-danger"
+                        onclick="return confirm('确定？')">清空数据
+                </button>
+                <button class="btn btn-outline-primary" onclick="window.location.href='/'">刷新</button>
+                <button type="submit" name="checkformatting" class="btn btn-outline-primary">检查格式</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container mt-2">
+        <table class="table table-hover table-bordered text-center" id="tabap">
+            <thead class="table-success">
+            <tr>
+                {#                <th>序号</th>#}
+                <th>点位</th>
+                {#                <th>日期</th>#}
+                {#                <th>分析员</th>#}
+                <th>N<sub>1</sub></th>
+                <th>N<sub>2</sub></th>
+                <th>N<sub>3</sub></th>
+                <th>N<sub>总</sub></th>
+                <th>L<sup>—</sup><sub>EPN</sub></th>
+                <th>L<sub>WECPN</sub></th>
+                <th>N<sub>1</sub>_20</th>
+                <th>N<sub>2</sub>_20</th>
+                <th>N<sub>3</sub>_20</th>
+                <th>N<sub>总</sub>_20</th>
+                <th>L<sup>—</sup><sub>EPN</sub>_20</th>
+                <th>L<sub>WECPN</sub>_20</th>
+                <th>背景</th>
+                <th>记录时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in queryset %}
+                <tr>
+                    {#                    <td>{{ item.pri }}</td>#}
+                    <td>{{ item.position }}</td>
+                    {#                    <td class="text-primary">{{ item.acq_date }}</td>#}
+                    {#                    <td>{{ item.analylize }}</td>#}
+                    <td>{{ item.n1 }}</td>
+                    <td>{{ item.n2 }}</td>
+                    <td>{{ item.n3 }}</td>
+                    <td>{{ item.nall }}</td>
+                    <td>{{ item.lamaxpb }}</td>
+                    <td>{{ item.lwecpn }}</td>
+                    <td>{{ item.n1_20 }}</td>
+                    <td>{{ item.n2_20 }}</td>
+                    <td>{{ item.n3_20 }}</td>
+                    <td>{{ item.nall_20 }}</td>
+                    <td>{{ item.lamaxpb_20 }}</td>
+                    <td>{{ item.lwecpn_20 }}</td>
+                    <td>{{ item.bg }}</td>
+                    <td>{{ item.cal_date }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock other_base %}

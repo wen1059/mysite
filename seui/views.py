@@ -11,8 +11,9 @@ import os.path
 from datetime import datetime, timedelta
 import sys
 import random
+import string
 
-sys.path.append(r'C:\Users\Administrator\PycharmProjects')
+sys.path.append(r'C:\Users\Administrator\PycharmProjects\se')
 
 
 def get_ip(request):
@@ -20,32 +21,21 @@ def get_ip(request):
     获取客户端ip
     X-Forwarded-For:简称XFF头，它代表客户端，也就是HTTP的请求端真实的IP，只有在通过了HTTP 代理或者负载均衡服务器时才会添加该项。
     """
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]  # 所以这里是真实的ip
-    else:
-        ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
-    return ip
+    return xf if (xf := request.META.get('HTTP_X_FORWARDED_FOR')) else request.META.get('REMOTE_ADDR')
 
 
-def upload_file_by_modelform(request, appname):
+def printip(func):
     """
-    useless,用简单文件上传取代
-    上传文件提交按钮
-    通过模型表单来上传文件
-    appname: 通过调用的app指定appname，写入字段，upload_to函数会读取让文件保存在相应的子目录
+    装饰器，打印访问者ip
+    :param func:
+    :return:
     """
-    if request.method == 'POST':
-        # form = ModelFormWithFileField(request.POST, request.FILES)  # 如果是上传单个文件，加上这行，然后直接form.save()。
-        # if form.is_valid():
-        for f in (files := request.FILES.getlist('file')):
-            # request.FILES: <MultiValueDict: {'file': [<InMemoryUploadedFile: HJ 1048公式.png (image/png)>,... ]
-            instance = ModelWithFileField(appname=appname,  # request.POST['title'],
-                                          file=f, fileorgname=f.name)
-            instance.save()
-            # dosomething using f.name
-            # os.system(f'start {os.path.join(settings.MEDIA_ROOT, f.name)}')
-        return [file.name for file in files]  # 上传的原文件名列表
+
+    def inner(request):
+        print(get_ip(request), request.path)
+        return func(request)
+
+    return inner
 
 
 def simple_upload_file(request):
@@ -54,7 +44,6 @@ def simple_upload_file(request):
     :param request:
     :return:
     """
-    destinations = []
     if request.method == 'POST':
         # 获取前端表单<input type="file">标签传过来的name属性.可以直接赋值，此处为了适应前端不同的name值。
         key = list(request.FILES.keys())[0]
@@ -62,13 +51,12 @@ def simple_upload_file(request):
         for file in files:
             # 限制上传文件大小100mb
             if file.size > 100 * 1024 * 1024:
-                break
+                continue
             # savefile
             with open(destination := os.path.join(settings.MEDIA_ROOT, file.name), 'wb+') as f:
-                for chuck in file.chunks():
-                    f.write(chuck)
-                destinations.append(destination)
-    return destinations
+                for chunk in file.chunks():
+                    f.write(chunk)
+                yield destination
 
 
 def index_main(request):
@@ -84,6 +72,7 @@ def showcode(request):
     return render(request, 'showcode.html', {'code': code})
 
 
+@printip
 def badapple(request):
     """
     播放字符画视频，
@@ -96,54 +85,13 @@ def badapple(request):
 def badapple_api(request):
     randomlist = [
         'badapple.txt',
-        '鸡你太美.txt',
+        # '鸡你太美.txt',
     ]
     with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', random.choice(randomlist))) as f:
-        frametxts = f.read().split('\t')
+        # 用随机字母显示
+        frametxts = f.read().replace('R', random.choice(string.ascii_uppercase)).split('\t')
     txts = {'txts': frametxts[40:]}  # 跳过前40帧
     return JsonResponse(txts)  # 改为全部帧传到前端js控制播放
-
-
-def wpscore(request):
-    """
-    绩效分值页面
-    :param request:
-    :return:
-    """
-    if request.method == 'GET':
-        form = ScoresForm()
-        data = Scores.objects.order_by('-测试代码')
-        content = {'scores': data, 'form': form}
-        return render(request, 'wpscore.html', content)
-    elif request.method == 'POST':
-        form = ScoresForm(request.POST)
-        if form.is_valid():
-            form.save()
-    return HttpResponseRedirect('/wpscore/')
-
-
-def wpcal(request):
-    """
-    绩效计算页面
-    """
-    if request.method == 'GET':
-        datas = Records.objects.filter(appname='绩效分值计算').order_by('-timestamp')
-        content = {'datas': datas}
-        return render(request, 'wpcal.html', content)
-    elif request.method == 'POST':
-        from se.绩效分值计算 import code_calscore as cocal
-        starttime = request.POST['start']
-        endtime = request.POST['end']
-        siotext: str = cocal.main(starttime, endtime)
-        # siotext = '123'
-        # time.sleep(2)
-        fileout = siotext.split()[-1]
-        fileout_f = fileout.split('\\')[-1]
-        ip = get_ip(request)
-        Records.objects.create(timestamp=timezone.now(), filein=f'{starttime} / {endtime}', fileout=fileout_f,
-                               fileout_f=fileout_f, ip=ip, appname='绩效分值计算')
-        messages.info(request, siotext)
-        return HttpResponseRedirect('/wpcal/')
 
 
 def uploadhandle(request):
@@ -158,19 +106,19 @@ def uploadhandle(request):
             # dosomethingwithfile
             match mode:
                 case 'ptc':
-                    from se.single import pdf_to_csv
+                    from single import pdf_to_csv
                     outputname = pdf_to_csv.transe(destination)
                 case 'ptw':
-                    from se.single import pdf_to_word
+                    from single import pdf_to_word
                     outputname = pdf_to_word.convert(destination)
                 case 'ppr':
-                    from se.single import pdfpasswdremover
+                    from single import pdfpasswdremover
                     outputname = pdfpasswdremover.unlock(destination)
                 case 'epr':
-                    from se.single import excel去加密 as epr
+                    from single import excel去加密 as epr
                     outputname = epr.run(destination)
                 case 'wpr':
-                    from se.single import word去加密 as wpr
+                    from single import word去加密 as wpr
                     outputname = wpr.run(destination)
                 case _:
                     outputname = 'unknown'
@@ -185,54 +133,8 @@ def uploadhandle(request):
             )
         return HttpResponseRedirect('/uph/')
 
-    queryset = Records.objects.all().order_by('-timestamp')
-    context = {'datas': queryset, 'navname': 'uploadhandle'}
-    return render(request, 'uploadhandle.html', context)
-
-
-def sl(request):
-    """
-    查询sql，生成lims读取谱图的通用模板
-    :param request:
-    :return:
-    """
-    if request.method == 'GET':
-        datas = Records.objects.filter(appname='lims查询').order_by('-timestamp')[:30]
-        content = {'datas': datas}
-        return render(request, 'sl.html', content)
-    elif request.method == 'POST':
-        from se.single import searchlimsql as sls
-        testno = request.POST['testno']
-        projectno = request.POST['projectno']
-        filename = f'{testno}_{projectno}.xlsx'
-        rst = sls.searchlims(testno, projectno)
-        sls.gentmp(rst, filename)
-        ip = get_ip(request)
-        Records.objects.create(timestamp=timezone.now(), filein=f'{testno} - {projectno}', fileout=filename,
-                               fileout_f=filename, ip=ip, appname='lims查询')
-        return HttpResponseRedirect('/sl/')
-
-
-def drawpic(request):
-    """
-    绘制渐变图
-    :param request:
-    :return:
-    """
-    if request.method == 'POST':
-        from se.single.drawgradient import DrawGradient
-        from io import BytesIO
-        import base64
-        dg = DrawGradient()
-        # lamba：16进制颜色转rgb
-        dg.basecolor = (lambda x: (int(x[1:3], 16), int(x[3:5], 16), int(x[5:], 16)))(request.POST['selectedcolor'])
-        dg.drawpic()
-        buffer = BytesIO()
-        dg.im.save(buffer, 'png')
-        buffer.seek(0)
-        return render(request, 'drawpic.html',
-                      {'img': base64.encodebytes(buffer.read()).decode(), 'appname': 'drawpic'})
-    return render(request, 'drawpic.html')
+    queryset = Records.objects.order_by('-timestamp')
+    return render(request, 'uploadhandle.html', {'datas': queryset})
 
 
 def airport(request):
@@ -244,22 +146,29 @@ def airport(request):
     if 'cleartab' in request.POST:  # 清空数据库
         Airport.objects.all().delete()
     if 'checkformatting' in request.POST:  # 检查格式
-        from se.机场噪声_2021虹桥 import 检查格式_RE as ck
+        from 机场噪声_2021虹桥 import 检查格式_RE as ck
         table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
         return HttpResponse(table)
-    queryset = Airport.objects.all().order_by('-cal_date')
+    queryset = Airport.objects.order_by('-cal_date')
     return render(request, 'airport.html', {'queryset': queryset})
 
 
+@printip
 def sp(request):
     return render(request, 'sp.html')
 
 
 def sp_api(request):
-    from se.single import yunce_SamplingPreparation as ycsp
-    jsonresult = ycsp.getjson()
-    return JsonResponse(jsonresult, safe=False, json_dumps_params={'ensure_ascii': False})
+    from single import yunce_SamplingPreparation as ycsp
+    result = ycsp.getjson()
+    return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
 def test(request):
-    return HttpResponse('1')
+    return render(request, 'sp.html')
+
+
+def test_api(request):
+    from ...se.single import yunce_SamplingPreparation as ycsp
+    result = ycsp.getjson()
+    return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
