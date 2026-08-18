@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block other_base %}
+    <div class="d-flex gap-2">
+        <form method="get">
+            <button type="submit" name="cleartab" class="btn btn-outline-danger"
+                    onclick="return confirm('确定？')">清空数据
+            </button>
+        </form>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="fileInput" class="btn btn-outline-primary">检查格式</label>
+            <input type="file" id="fileInput" name="checkformatting" style="display:none" multiple
+                   onchange="this.form.submit()">
+        </form>
+    </div>
+    <div id="data-table"></div>
+    <script>
+        const tableConfig = {
+            columns: [
+                {title: "点位", field: "point"},
+                {title: "日期", field: "date"},
+                {title: "Ldn", field: "ldn"},
+                {title: "白天有效架次", field: "nd_effective"},
+                {title: "夜间有效架次", field: "nn_effective"},
+                {title: "白天总架次", field: "nd_all"},
+                {title: "夜间总架次", field: "nn_all"},
+                {title: "是否有效", field: "is_valid"},
+                {title: "", field: "record_time"},
+
+            ],
+            {#autoColumns: true,       // ✅ 自动从JSON生成列#}
+            layout: "fitColumns",    // ✅ 自适应宽度
+            height: "850px",         // ✅ 固定表格高度
+            pagination: "local",     // ✅ 分页
+            paginationSize: 5000,      // ✅ 每页15条
+            paginationSizeSelector: [25, 5000],  // ✅ 分页大小选项
+            frozenRows: 0, //冻结行
+            placeholder: "加载中...",  // 数据加载前显示的文本
+            columnDefaults: {
+                headerHozAlign: "center",                // 居中设置
+                hozAlign: "center",
+                vertAlign: "middle",
+                headerFilter: true,                    // 启用筛选
+                headerFilterPlaceholder: "筛选...",    // 筛选框提示
+                headerFilterFunc: "like"               // 模糊匹配
+            }
+        };
+        const table = new Tabulator("#data-table", tableConfig);
+
+        async function loadData(url) {
+            const response = await fetch(url);
+            const data = await response.json();
+            table.setData(data);
+        }
+
+        loadData('{{ api }}')
+    </script>
+
+{% endblock other_base %}

@@ -5,11 +5,11 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <select name="mode" class="form-select mb-3">
-                <option value="ptc">PDF 转 CSV</option>
-                <option value="ptw">PDF 转 Word</option>
                 <option value="ppr">PDF 去除加密</option>
                 <option value="epr">Excel 去除加密</option>
                 <option value="wpr">Word 去除加密</option>
+                <option value="ptc">PDF 转 CSV</option>
+                <option value="ptw">PDF 转 Word</option>
             </select>
             <input type="file" name="uploadfiles" class="form-control" multiple
                    onchange="this.form.submit()">
@@ -28,7 +28,7 @@
             {% for data in datas %}
                 <tr>
                     <td>{{ data.filein }}</td>
-                    <td><a href='/media/{{ data.fileout }}'>{{ data.fileout }}</a></td>
+                    <td><a href='/media/uph/{{ data.fileout }}'>{{ data.fileout }}</a></td>
                     <td>{{ data.timestamp }}</td>
                 </tr>
             {% endfor %}

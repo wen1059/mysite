@@ -34,6 +34,11 @@ urlpatterns = [
     path('showcode/', views.showcode),
     path('uph/', views.uploadhandle),
     path('ap/', views.airport),  # 机场噪声查询
+    path('apnt/', views.airportnt),  # 机场噪声新模板查询
+    path('apnt/api/', views.airportnt_api),
+    path('apnew/', views.apnew),  # 机场噪声新标准查询
+    path('apnew/api/<str:mode>/', views.apnew_api),
+    path('rsi/', views.renamesampleimage),  # 重命名采样照片
     path('sp/', views.sp),  # 采样准备
     path('sp/api/', views.sp_api),  # 采样准备表格api
 

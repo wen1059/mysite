@@ -7,9 +7,10 @@ from mysite import settings
 from seui.models import *
 
 import csv
-import os.path
 from datetime import datetime, timedelta
 import sys
+from pathlib import Path
+
 import random
 import string
 
@@ -38,9 +39,10 @@ def printip(func):
     return inner
 
 
-def simple_upload_file(request):
+def simple_upload_file(request, destdir=Path(settings.MEDIA_ROOT)):
     """
     简单文件上传。with open方式保存
+    :param destdir: 保存的目录
     :param request:
     :return:
     """
@@ -53,10 +55,10 @@ def simple_upload_file(request):
             if file.size > 100 * 1024 * 1024:
                 continue
             # savefile
-            with open(destination := os.path.join(settings.MEDIA_ROOT, file.name), 'wb+') as f:
+            with (destination := destdir / file.name).open('wb+') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-                yield destination
+            yield destination
 
 
 def index_main(request):
@@ -67,8 +69,7 @@ def index_main(request):
 
 
 def showcode(request):
-    with open(r"C:\Users\Administrator\PycharmProjects\se\single\send_file_to_yunce.py", encoding='utf8') as f:
-        code = f.read()
+    code = Path(r"C:\Users\Administrator\PycharmProjects\se\single\send_file_to_yunce.py").read_text(encoding='utf-8')
     return render(request, 'showcode.html', {'code': code})
 
 
@@ -85,11 +86,11 @@ def badapple(request):
 def badapple_api(request):
     randomlist = [
         'badapple.txt',
-        # '鸡你太美.txt',
+        '鸡你太美.txt',
     ]
-    with open(os.path.join(settings.STATICFILES_DIRS[0], 'indextext', random.choice(randomlist))) as f:
-        # 用随机字母显示
-        frametxts = f.read().replace('R', random.choice(string.ascii_uppercase)).split('\t')
+    # 用随机字母显示
+    txtpath = Path(settings.STATICFILES_DIRS[0]) / 'indextext' / random.choice(randomlist)
+    frametxts = txtpath.read_text().replace('R', random.choice(string.ascii_uppercase)).split('\t')
     txts = {'txts': frametxts[40:]}  # 跳过前40帧
     return JsonResponse(txts)  # 改为全部帧传到前端js控制播放
 
@@ -102,7 +103,7 @@ def uploadhandle(request):
     """
     if request.method == 'POST':
         mode = request.POST.get('mode')
-        for destination in simple_upload_file(request):
+        for destination in str(simple_upload_file(request, Path(settings.MEDIA_ROOT) / 'uph')):
             # dosomethingwithfile
             match mode:
                 case 'ptc':
@@ -113,7 +114,7 @@ def uploadhandle(request):
                     outputname = pdf_to_word.convert(destination)
                 case 'ppr':
                     from single import pdfpasswdremover
-                    outputname = pdfpasswdremover.unlock(destination)
+                    outputname = pdfpasswdremover.unlock(destination, overwriting=False)
                 case 'epr':
                     from single import excel去加密 as epr
                     outputname = epr.run(destination)
@@ -125,7 +126,7 @@ def uploadhandle(request):
 
             # createrecord
             Records.objects.create(
-                filein=destination.split('\\')[-1],
+                filein=Path(destination).name,
                 fileout=outputname,
                 timestamp=timezone.now(),
                 ip=get_ip(request),
@@ -147,15 +148,65 @@ def airport(request):
         Airport.objects.all().delete()
     if 'checkformatting' in request.POST:  # 检查格式
         from 机场噪声_2021虹桥 import 检查格式_RE as ck
-        table = ck.showcheckresult(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
+        files = ck.findfiles(r"\\10.1.78.254\环装-实验室\实验室共享\2024鸡场\__检查格式__")
+        table = ck.showcheckresult(files, 'html')
         return HttpResponse(table)
     queryset = Airport.objects.order_by('-cal_date')
     return render(request, 'airport.html', {'queryset': queryset})
 
 
+def airportnt(request):
+    """
+    9661新模板计算
+    :param request:
+    :return:
+    """
+    if 'cleartab' in request.GET:  # 清空数据库
+        AirportNT.objects.all().delete()
+    if 'upload' in request.FILES:  # 检查格式
+        from 机场噪声_2021虹桥 import day_epn_acu_虹桥_新模板 as apnt
+        files = simple_upload_file(request, Path(settings.MEDIA_ROOT) / 'apnt')
+        apnt.write_to_sql(files)
+        return HttpResponseRedirect('/apnt/')
+    return render(request, 'airportnt.html')
+
+
+def airportnt_api(request):
+    queryset = AirportNT.objects.order_by('-record_time')
+    result = list(queryset.values())
+    return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
+
+
+def apnew(request):
+    """
+    新修订标准计算
+    :param request:
+    :return:
+    """
+    if 'cleartab' in request.GET:  # 清空数据库
+        AirportNew.objects.all().delete()
+    if 'checkformatting' in request.FILES:  # 检查格式
+        from 机场噪声_2021虹桥 import 检查格式_RE as ck
+        files = simple_upload_file(request, Path(settings.MEDIA_ROOT) / 'ck')
+        table = ck.showcheckresult(list(files), 'html')
+        return HttpResponse(table)
+    return render(request, 'airport_new.html', {'api': '/apnew/api/data/'})
+
+
+def apnew_api(request, mode):
+    queryset = AirportNew.objects.order_by('-record_time')
+    result = list(queryset.values())
+    return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
+
+
 @printip
 def sp(request):
-    return render(request, 'sp.html')
+    """
+    采样准备
+    :param request:
+    :return:
+    """
+    return render(request, 'tabulatortemplate.html', {'api': '/sp/api/'})
 
 
 def sp_api(request):
@@ -164,11 +215,18 @@ def sp_api(request):
     return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
+def renamesampleimage(request):
+    # from single import 重命名点位照片 as rsi
+    text = rsi.rename()
+    return HttpResponse(text)
+
+
 def test(request):
-    return render(request, 'sp.html')
+    if 'cleartab' in request.GET:  # 清空数据库
+        AirportNew.objects.all().delete()
+    return render(request, 'airport_new.html', {'api': '/test/api/'})
 
 
 def test_api(request):
-    from ...se.single import yunce_SamplingPreparation as ycsp
-    result = ycsp.getjson()
-    return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
+    queryset = AirportNew.objects.order_by('-record_time')
+    return JsonResponse(list(queryset.values()), safe=False, json_dumps_params={'ensure_ascii': False})
